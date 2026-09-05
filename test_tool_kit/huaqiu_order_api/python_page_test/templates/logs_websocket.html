@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>实时日志 (WebSocket)</title>
+    <style>
+         #log-container {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="log-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+        const container = document.getElementById('log-container');
+
+        socket.on('connect', () => {
+            console.log('WebSocket 连接成功');
+        });
+
+        socket.on('new_log', (log) => {
+            container.textContent += log + '\n';
+            container.scrollTop = container.scrollHeight;
+        });
+    </script>
+</body>
+</html>

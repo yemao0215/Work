@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>自动化工具</title>
+	<style>
+		label, input {
+            margin-bottom: 5px;
+        }
+        #supplierLabel {
+            width: 80px; /* 设置 label 的宽度 */
+            maxlength: 21px;
+            display: inline-block;  /* 让 label 和输入框水平排列 */
+            word-wrap: break-word; /* 超出长度自动换行 */
+        }
+		/* 可以根据需要进行样式调整 */
+        #qrcode {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #qrcode img {
+            max-width: 100%; /* 确保图片不超出容器宽度 */
+            height: auto;
+        }
+		/* 全局加载遮罩层 */
+		.loading-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.7);
+			z-index: 9999;
+			display: none;
+			justify-content: center;
+			align-items: center;
+		}
+
+		/* 加载动画 */
+		.loading-spinner {
+			border: 4px solid #f3f3f3;
+			border-top: 4px solid #3498db;
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+    </style>
+	<!-- 加载动画的DOM结构 -->
+
+</head>
+	<div class="loading-overlay" id="loadingOverlay">
+		<div class="loading-spinner"></div>
+	</div>
+<body>
+
+	<h1 style="text-align: center">&#128142;&#128522;&#128518;测试组组内自动化工具&#128518;&#128512;&#129505;&#11088;</h1>
+	<p style="font-weight: bold"><font size="6" color="red">造数据订单类</font>
+	<div style="display: flex; " class="before">
+		<form action="/submit" method="post">
+		<p style="text-align: center"><b>风控上报</b></p>
+		<p>
+			<label for="phone">手机号码：</label>
+			<input id="phone" name="phone" type="text" ><br><br>
+			<label for="name">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="name" name="name"><br><br>
+			<label for="password">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="password" name="password" type="text"><br><br>
+			<label for="type">订单类型：</label>
+			<input id="type" name="type" type="text"><br><br>
+			<label for="pcbuid">客户编号：</label>
+			<input id="pcbuid" name="pcbuid" type="text"><br><br>
+			<br><br><br><br><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="rcs" type="submit" value="执行" style="width: 170px; background-color: #c00">
+		</p>
+		</form>
+		<form action="/opencreate" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>开放接口操作生单</b></p>
+		<p>
+			<label for="APP_KEY">应用KEY：</label>
+			<input id="APP_KEY" name="APP_KEY" type="text" value="c11ff533617d2aa45ffd0e1994fb2cd7" ><br><br>
+			<label for="APP_SEC">应用密钥：</label>
+			<input id="APP_SEC" name="APP_SEC" type="text"  ><br><br>
+			<label for="openapiphone">收货手机：</label>
+			<input id="openapiphone" name="phone" type="text" style="width: 80px;">
+			<label for="openapiEnvType">环境:</label>
+			  <select name="openapiEnvType" id="openapiEnvType" style="width: 46px;">
+    			<option value="uat">默认</option>
+				<option value="pro">正式</option>
+			  </select><br>
+			<span id="hint-auto-product" style="color: gray; font-size: 12px;">环境为正式时，需传正式环境KEY和密钥</span><br>
+			<label for="openapigoodsname">型号名称：</label>
+			<input id="openapigoodsname" name="goodsName" type="text"><br><br>
+			<label for="openapigoodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="openapigoodsId" name="goodsId" type="text" ><br><br>
+			<label for="openapinumber">购买数量：</label>
+			<input id="openapinumber" name="number" type="text" style="width: 50px;">
+			<label for="openapiwarehouse">仓库:</label>
+			  <select name="warehouse" id="openapiwarehouse" style="width: 73px;">
+    			<option value="2">深圳华秋华南仓</option>
+			  </select><br>
+			<span id="hint-auto-warehouse" style="color: gray; font-size: 12px;">购买量大于每个库存id的起订量且符合的倍数！！</span><br>
+			<label for="openapiOrderType">订单：</label>
+			  <select name="OrderType" id="openapiOrderType">
+    			<option value="1">内地订单</option>
+				<option value="2">香港订单</option>
+			  </select>
+			<label for="openapivat_type">发票:</label>
+				<select name="vat_type" id="openapivat_type" style="width: 85px;">
+    				<option value="1">普通发票</option>
+					<option value="2">增值税</option>
+					<option value="3">香港发票</option>
+				</select><br><br>
+			<label for="openapiremark">备注：</label>
+			<input id="openapiremark" name="remark" type="text" value="自动化测试" style="width: 85px;">
+			<label for="openapiPartialOrderAlloweb">提交:</label>
+				<select name="openapiPartialOrderAlloweb" id="openapiPartialOrderAlloweb" style="width: 73px;">
+    				<option value="0">整单</option>
+					<option value="1">允许部分</option>
+				</select>
+			<br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="openapi" type="submit" value="执行" style="width: 170px; background-color: #c00"></p>
+		</form>
+		<form action="/iccreate" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>IC订单生单</b></p>
+		<p>
+			<label for="frequency">生单次数：</label>
+			<input id="frequency" name="frequency" type="text" value="1" placeholder="默认传1">次<br><br>
+			<label for="phone">手机号码：</label>
+			<input id="phone1" name="phone1" type="text" value="15912757721" placeholder="默认传15912757721"><br><br>
+			<label for="name">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="name1" name="name1" type="text" value="jf_15113305" placeholder="默认传jf_15113305"><br><br>
+			<label for="password">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="password1" name="password1" type="text"  value="a123456" placeholder="默认传a123456"><br><br>
+			<label for="goodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="goodsId" name="goodsId" type="text" ><br><br>
+			<label for="number">购买数量：</label>
+			<input id="number" name="number" type="text" ><br><br>
+			<label for="warehouse">仓库:</label>
+<!--			<input id="warehouse" name="warehouse" type="text" ><br><br>-->
+			  <select name="warehouse" id="warehouse">
+    			<option value="2">东莞仓</option>
+<!--    			<option value="8">长沙华秋仓</option>-->
+			  </select>&nbsp;
+			<label for="vat_type">发票类型:</label>
+<!--			<input id="vat_type" name="vat_type" type="text" ><br><br>-->
+				<select name="vat_type" id="vat_type" style="width: 80px;">
+    				<option value="3">不开发票</option>
+    				<option value="1">增值税发票</option>
+					<option value="0">普通发票</option>
+				</select><br><br>
+			<label for="vat_sub_type">开票类型:</label>
+				<select name="vat_sub_type" id="vat_sub_type" style="width: 80px;">
+    				<option value="0">不开发票</option>
+    				<option value="1">纸质增值税</option>
+					<option value="2">数电增值税</option>
+					<option value="3">普通增值税</option>
+				</select>
+			<label for="shipping_method_type">是否贴片:</label>
+				<select name="shipping_method_type" id="shipping_method_type">
+					<option value="1">否</option>
+					<option value="2">是</option>
+				</select><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="ic" type="submit" value="执行" style="width: 170px; background-color: #c00"></p>
+		</form>
+		<form action="/icoutbound" method="post" style="padding-left:90px">
+		<p>IC订单一键出库</p>
+		<p>
+			<label for="phone">手机号码：</label>
+			<input id="phone2" name="phone2" type="text"><br><br>
+			<label for="name">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="name2" name="name2" type="text"><br><br>
+			<label for="password">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="password2" name="password2" type="text"><br><br>
+			<label for="goodsId1">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="goodsId1" name="goodsId" type="text" ><br><br>
+			<label for="number1">购买数量：</label>
+			<input id="number1" name="number" type="text" ><br><br>
+			<label for="warehouse1">仓库：</label>
+<!--			<input id="warehouse" name="warehouse" type="text" ><br><br>-->
+			  <select name="warehouse1" id="warehouse1">
+    			<option value="2">东莞华秋仓</option>
+    			<option value="8">长沙华秋仓</option>
+			  </select>
+			<label for="mainType" style="padding-left:10px">类型:</label>
+				<select name="mainType" id="mainType">
+					<option value="self_have">自营有</option>
+    				<option value="self_no">自营无</option>
+					<option value="supp_sa">合作</option>
+    				<option value="overseas">海外</option>
+				</select><br><br>
+			<label for="vat_type1">发票类型：</label>
+<!--			<input id="vat_type" name="vat_type" type="text" ><br><br>-->
+				<select name="vat_type1" id="vat_type1" style="width: 180px;">
+    				<option value="3">不开发票</option>
+    				<option value="1">增值税发票</option>
+					<option value="0">普通发票</option>
+				</select><br><br>
+			<label for="vat_sub_type1">开票类型：</label>
+				<select name="vat_sub_type" id="vat_sub_type1" style="width: 180px;">
+    				<option value="0">不开发票</option>
+    				<option value="1">纸质增值税</option>
+					<option value="2">数电增值税</option>
+					<option value="3">普通增值税</option>
+				</select><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="icOB" type="submit" value="执行" style="width: 170px; background-color: #c00"></p>
+		</form>
+		<form action="/pcboperation" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>PCB订单操作(开放接口)</b></p>
+		<p>
+			<label for="phone">手机号码：</label>
+			<input id="phone3" name="phone3" type="text"><br><br>
+			<label for="name">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="name3" name="name3" type="text"><br><br>
+			<label for="password">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="password3" name="password3" type="text"><br><br>
+			<label for="type3">参数类型：</label>
+			<input id="type3" name="type3" type="text"  placeholder="phpsessid、mid、orders、audit、details、order_audit、order_pay、cam_doen、run_pb、ruku、order_ruku、
+nextpcb_order、review_order"><br><br>
+			<label for="pcbuid">客户编号：</label>
+			<input id="pcbuid2" name="pcbuid2" type="text" ><br><br>
+			<label for="order">返单编号：</label>
+			<input id="order" name="order" type="text" ><br><br>
+			<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="pcb" type="submit" value="执行" style="width: 170px; background-color: #45A66A"></p>
+		</form>
+	</div><br>
+	<div style="display: flex; " class="before">
+		<form action="/stencilOrder" method="post">
+		<p style="text-align: center"><b>钢网下单</b></p>
+			<label for="stencilfrequency">生单次数：</label>
+			<input id="stencilfrequency" name="frequency" type="text" value="1" placeholder="默认传1" style="width: 205px;">次<br><br>
+			<label for="stencilphone">手机号码：</label>
+			<input id="stencilphone" name="stencilphone" type="text" value="15912757721" placeholder="默认传15912757721" style="width: 218px;"><br><br>
+			<label for="stencilname">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="stencilname" name="stencilname" type="text" value="jf_15113305" placeholder="默认传jf_15113305" style="width: 218px;"><br><br>
+			<label for="stencilpassword">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="stencilpassword" name="stencilpassword" type="text"  value="a123456" placeholder="默认传a123456" style="width: 218px;"><br><br>
+			<label for="stencilFrame">边框类型：</label>
+			<select name="stencilFrame" id="stencilFrame">
+    			<option value="钢网">钢网</option>
+				<option value="钢片">钢片</option>
+			</select>&nbsp;&nbsp;&nbsp;
+			<label for="stencilType">钢网类型：</label>
+			<select name="stencilType" id="stencilType">
+    			<option value="锡膏网">锡膏网</option>
+				<option value="红胶网">红胶网</option>
+				<option value="阶梯网">阶梯网</option>
+			</select><br><br>
+			<label for="printingType">印刷方式：</label>
+			<select name="printingType" id="printingType">
+    			<option value="1">半自动</option>
+				<option value="2">全自动</option>
+				<option value="3">手动</option>
+			</select>&nbsp;&nbsp;&nbsp;
+			<label for="elec_tropolishing">抛光工艺：</label>
+			<select name="elec_tropolishing" id="elec_tropolishing">
+    			<option value="0">打磨</option>
+				<option value="1">电解</option>
+			</select><br><br>
+			<label for="stencil_side">制作方式：</label>
+			<select name="stencil_side" id="stencil_side" style="width: 218px;">
+    			<option value="1">顶层</option>
+				<option value="2">底层</option>
+				<option value="3" >顶层和底层(合做一个钢网)</option>
+				<option value="4" >顶层和底层(分开两个钢网)</option>
+			</select><br><br>
+			<label for="stencil_size">尺寸(cm)：</label>
+			<select name="stencil_size" id="stencil_size">
+    			<option value="30*40">30*40</option>
+				<option value="37*47">37*47</option>
+				<option value="42*52" >42*52</option>
+				<option value="45*55" >45*55</option>
+				<option value="58.4*58.4" >58.4*58.4</option>
+				<option value="55*65" >55*65</option>
+<!--				<option value="73.6*73.6" >73.6*73.6</option>-->
+<!--				<option value="40*60" >40*60</option>-->
+<!--				<option value="40*80" >40*80</option>-->
+<!--				<option value="40*100" >40*100</option>-->
+<!--				<option value="40*120" >40*120</option>-->
+<!--				<option value="40*140" >40*140</option>-->
+<!--				<option value="50*70" >50*70</option>-->
+<!--				<option value="50*120" >50*120</option>-->
+<!--				<option value="50*80" >50*80</option>-->
+			</select>&nbsp;
+			<label for="stencil_thickness">钢网厚度:</label>
+			<select name="stencil_thickness" id="stencil_thickness">
+    			<option value="0.08">0.08</option>
+				<option value="0.10">0.10</option>
+				<option value="0.12" >0.12</option>
+				<option value="0.15" >0.15</option>
+				<option value="0.20" >0.20</option>
+			</select><br><br>
+			<label for="existing_fiducials">基准孔:</label>
+			<select name="existing_fiducials" id="existing_fiducials">
+    			<option value="无">无</option>
+				<option value="半刻">半刻</option>
+				<option value="Mark点通孔" >Mark点通孔</option>
+			</select>
+			<label for="engineering_require">处理要求:</label>
+			<select name="engineering_require" id="engineering_require">
+    			<option value="1">按协议</option>
+				<option value="2">确认文档</option>
+			</select><br><br>
+			<label for="stencil_vat_type">发票类型</label>
+			<select name="stencil_vat_type" id="stencil_vat_type">
+    				<option value="3">不开发票</option>
+    				<option value="1">增值税发票</option>
+					<option value="0">普通发票</option>
+				</select>&nbsp;
+			<label for="stencil_vat_sub_type">开票类型：</label>
+				<select name="stencil_vat_sub_type" id="stencil_vat_sub_type">
+    				<option value="0">无需</option>
+    				<option value="1">纸质</option>
+					<option value="2">数电</option>
+					<option value="3">普通</option>
+				</select><br><br>
+			<label for="stencilNumber">数量：</label>
+			<input id="stencilNumber" name="stencilNumber" type="text" style="width: 245px;" value="1" placeholder="默认传1"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="stencil" type="submit" value="执行" style="width: 255px; background-color: #45A66A">
+		</p>
+		</form>
+		<form action="/smtOrder" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>SMT下单</b></p>
+		<p>
+			<label for="smtfrequency">生单次数：</label>
+			<input id="smtfrequency" name="frequency" type="text" value="1" placeholder="默认传1" style="width: 205px;">次<br><br>
+			<label for="smtphone">手机号码：</label>
+			<input id="smtphone" name="phone" type="text" value="15912757721" placeholder="默认传15912757721" style="width: 218px;"><br><br>
+			<label for="smtname">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="smtname" name="name" type="text" value="jf_15113305" placeholder="默认传jf_15113305" style="width: 218px;"><br><br>
+			<label for="smtpassword">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="smtpassword" name="password" type="text"  value="a123456" placeholder="默认传a123456" style="width: 218px;"><br><br>
+			<label for="applicationSphere">产品领域：</label>
+			<select name="applicationSphere" id="applicationSphere">
+    			<option value="1">工控电子</option>
+				<option value="2">汽车电子</option>
+				<option value="3">医疗电子</option>
+				<option value="4">新能源电子</option>
+				<option value="5">军工电子</option>
+				<option value="6">消费电子</option>
+			</select>
+			<label for="singleOrDoubleTechnique">单/双面：</label>
+			<select name="singleOrDoubleTechnique" id="singleOrDoubleTechnique">
+    			<option value="1">单面</option>
+				<option value="2">双面</option>
+			</select><br><br>
+			<label for="isPcbSoftBoard">PCB板类型：</label>
+			<select name="isPcbSoftBoard" id="isPcbSoftBoard" style="width: 210px;">
+    			<option value="0">硬板</option>
+				<option value="1">软板</option>
+				<option value="2">软硬结合板</option>
+			</select><br><br>
+			<label for="pcbbanwidth">PCB拼版尺寸：</label>
+			<input id="pcbbanwidth" name="width" type="text"  placeholder="长/x" style="width: 50px;"> cm<b>&nbsp;X</b>&nbsp;
+			<input id="pcbbanheight" name="height" type="text"  placeholder="宽/y" style="width: 50px;"> cm<br><br>
+			<label for="produceNumber">生产数量:</label>
+			<input id="produceNumber" name="number" type="text"  placeholder="订单的单片生产数量" style="width: 50px;"> pcs&nbsp;&nbsp;
+			<label for="splicingNumber">1 SET:</label>
+			<input id="splicingNumber" name="splicingNumber" type="text" value="1" placeholder="请输入拼版数" style="width: 50px;"> pcs<br><br>
+			<label for="bomMaterialTypeNumber">BOM物料种类:</label>
+			<input id="bomMaterialTypeNumber" name="bomMaterialTypeNumber" type="text"  placeholder="BOM中的全部物料种类数" style="width: 195px;"><br><br>
+			<label for="patchPadNumber">单片贴片点数:</label>
+			<input id="patchPadNumber" name="patchPadNumber" type="text" value="1" placeholder="单片所有贴片物料的焊点数" style="width: 202px;"><br><br>
+			<label for="plugNumber">单片插件点数:</label>
+			<input id="plugNumber" name="plugNumber" type="text" value="1" placeholder="单片所有插件物料的焊点数" style="width: 202px;"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="smt" type="submit" value="执行" style="width: 262px; background-color: #45A66A">
+		</p>
+		</form>
+		<form action="/pcbOrder" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>PCB下单(前台接口)</b></p>
+		<p>
+			<label for="pcbfrequency">生单次数：</label>
+			<input id="pcbfrequency" name="frequency" type="text" value="1" placeholder="默认传1" style="width: 205px;">次<br><br>
+			<label for="pcbphone">手机号码：</label>
+			<input id="pcbphone" name="phone" type="text" value="15912757721" placeholder="默认传15912757721" style="width: 218px;"><br><br>
+			<label for="pcbname">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="pcbname" name="name" type="text" value="jf_15113305" placeholder="默认传jf_15113305" style="width: 218px;"><br><br>
+			<label for="pcbpassword">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="pcbpassword" name="password" type="text"  value="a123456" placeholder="默认传a123456" style="width: 218px;"><br><br>
+			<label for="boardType">产品类别：</label>
+			<select name="boardType" id="boardType">
+				<option value="FR-4">FR-4</option>
+			</select>
+			<label for="HDIType">HDI(盲埋孔)：</label>
+			<select name="HDIType" id="HDIType" style="width: 55px;">
+				<option value="FR-4">无</option>
+				<option value="FR-4">有</option>
+			</select><br><br>
+			<label for="blayer">板子层数：</label>
+			<select name="blayer" id="blayer" style="width: 55px;">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="4">4</option>
+				<option value="6">6</option>
+				<option value="8">8</option>
+				<option value="10">10</option>
+				<option value="12">12</option>
+				<option value="14">14</option>
+				<option value="16">16</option>
+				<option value="18">18</option>
+				<option value="20">20</option>
+			</select>
+			<label for="boardBrand">板子品牌：</label>
+			<select name="boardBrand" id="boardBrand" style="width: 80px;">
+				<option value="无要求">无要求</option>
+				<option value="建滔KB">建滔KB</option>
+				<option value="生益">生益</option>
+			</select>
+		</p>
+		</form>
+		<form action="/pcbaOrder" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>PCBA下单</b></p>
+		<p>
+			<label for="pcbafrequency">生单次数：</label>
+			<input id="pcbafrequency" name="frequency" type="text" value="1" placeholder="默认传1" style="width: 60px;">次&nbsp;
+			<label for="pcbaInvoiceNeed">需要发票:</label>
+			<select name="pcbaInvoiceNeed" id="pcbaInvoiceNeed" style="width: 60px;">
+				<option value="不需要">不需要</option>
+				<option value="需要">需要</option>
+			</select><br>
+			<span id="hint-need-invoice" style="color: gray; font-size: 12px;">环境为需要发票时为需要时，默认为采取数电增票形式</span><br>
+<!--			<input id="pcbafrequency" name="frequency" type="text" value="1" placeholder="默认传1" style="width: 50px;"><br><br>-->
+			<label for="pcbaphone">手机号码：</label>
+			<input id="pcbaphone" name="phone" type="text" value="15912757721" placeholder="默认传15912757721" style="width: 218px;"><br><br>
+			<label for="pcbaname">用户名：&nbsp;&nbsp;&nbsp;</label>
+			<input id="pcbaname" name="name" type="text" value="jf_15113305" placeholder="默认传jf_15113305" style="width: 218px;"><br><br>
+			<label for="pcbapassword">密码：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="pcbapassword" name="password" type="text"  value="a123456" placeholder="默认传a123456" style="width: 218px;"><br><br>
+			<label for="smtapplicationSphere">产品领域：</label>
+			<select name="applicationSphere" id="smtapplicationSphere">
+    			<option value="1">工控电子</option>
+				<option value="2">汽车电子</option>
+				<option value="3">医疗电子</option>
+				<option value="4">新能源电子</option>
+				<option value="5">军工电子</option>
+				<option value="6">消费电子</option>
+			</select>
+			<label for="smtsingleOrDoubleTechnique">单/双面：</label>
+			<select name="singleOrDoubleTechnique" id="smtsingleOrDoubleTechnique">
+    			<option value="1">单面</option>
+				<option value="2">双面</option>
+			</select><br><br>
+			<label for="smtisPcbSoftBoard">PCB板类型：</label>
+			<select name="isPcbSoftBoard" id="smtisPcbSoftBoard" style="width: 75px;">
+    			<option value="0">硬板</option>
+				<option value="1">软板</option>
+				<option value="2">软硬结合板</option>
+			</select>&nbsp;&nbsp;
+			<label for="smtsplicingNumber">1 SET:</label>
+			<input id="smtsplicingNumber" name="splicingNumber" type="text" value="1" placeholder="请输入拼版数" style="width: 35px;"> pcs<br><br>
+			<label for="pcbSmtbanwidth">PCB拼版尺寸：</label>
+			<input id="pcbSmtbanwidth" name="width" type="text"  placeholder="长/x" style="width: 50px;"> cm<b>&nbsp;X</b>&nbsp;
+			<input id="pcbSmtbanheight" name="height" type="text"  placeholder="宽/y" style="width: 50px;"> cm<br><br>
+			<label for="pcbaproduceNumber">生产数量:</label>
+			<input id="pcbaproduceNumber" name="number" type="text"  placeholder="订单的单片生产数量" style="width: 50px;"> pcs&nbsp;&nbsp;
+			<label for="smtpatchPadNumber">单片贴片点数:</label>
+			<input id="smtpatchPadNumber" name="patchPadNumber" type="text" value="1" placeholder="单片所有贴片物料的焊点数" style="width: 28px;"><br><br>
+			<label for="smtbomMaterialTypeNumber">BOM种类:</label>
+			<input id="smtbomMaterialTypeNumber" name="bomMaterialTypeNumber" type="text"  placeholder="BOM中的全部物料种类数" style="width: 80px;">&nbsp;&nbsp;
+			<label for="smtplugNumber">单片插件点数:</label>
+			<input id="smtplugNumber" name="plugNumber" type="text" value="1" placeholder="单片所有插件物料的焊点数" style="width: 24px;"><br><br>
+			<label for="PCBBindType">PCB绑定类型:</label>
+			<select name="PCBBindType" id="PCBBindType" style="width: 108px;">
+    			<option value="0">已在华秋下单</option>
+				<option value="1">自己提供</option>
+				<option value="2">在华秋定制PCB</option>
+			</select>&nbsp;&nbsp;
+			<input id="PCBBindVaule" name="PCBBindVaule" type="text" placeholder="已在华秋下单的订单号" style="width: 82px;"><br><br>
+			<label for="BOMBindType">BOM绑定类型:</label>
+			<select name="BOMBindType" id="BOMBindType" style="width: 105px;">
+    			<option value="0">已在华秋下单</option>
+				<option value="1">自己提供</option>
+				<option value="2">华秋代采BOM</option>
+			</select>&nbsp;&nbsp;
+			<input id="BOMBindVaule" name="BOMBindVaule" type="text" placeholder="已在华秋下单的订单号" style="width: 78px;"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="pcbaOrder" type="submit" value="执行" style="width: 262px; background-color: #45A66A">
+			<span id="spinner" class="spinner" style="display: none;"></span>
+		</p>
+		</form>
+	</div><br>
+	</p>
+	<p style="font-weight: bold"><font size="6" color="green">造数据补货类</font>
+	<div style="display: flex; " class="before">
+		<form action="/stock/selfstock" method="post">
+		<p style="text-align: center"><b>自营补货</b></p>
+		<p>
+			<label for="stockGoodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="stockGoodsName" name="GoodsName" type="text" ><br><br>
+			<label for="stockBrandName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="stockBrandName" name="BrandName"><br><br>
+			<label for="stockPacker">包装：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="stockPacker" name="Packer"><br><br>
+			<label for="stockPackerNumber">包装数量：</label>
+			<input type="text" id="stockPackerNumber" name="PackerNumber"><br><br>
+			<label for="stockNumber">补货数量：</label>
+			<input type="text" id="stockNumber" name="stockNumber"><br><br>
+			<label for="stockGoodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="stockGoodsId" name="GoodsId" type="text"><br><br>
+			<label for="stockOrderSn">订单编号：</label>
+			<input id="stockOrderSn" name="OrderSn" type="text"><br><br>
+			<label for="Demandwarehouse">仓库：</label>
+			<select name="warehouse" id="Demandwarehouse">
+    			<option value="2">东莞仓</option>
+    			<option value="8">长沙仓</option>
+			</select>
+			<label for="stockType" style="padding-left:10px">类型：</label>
+				<select name="stockType" id="stockType">
+					<option value="1">项目备货</option>
+    				<option value="2">项目补货</option>
+					<option value="3">常规备货</option>
+    				<option value="4">销售补货</option>
+					<option value="5">寄售备货</option>
+				</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="stock" type="submit" value="执行" style="width: 170px; background-color: #4E5BA6">
+		</p>
+		</form>
+		<form action="/stock/supplierstock" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>合作销售补货</b></p>
+		<p>
+			<label for="suppstockGoodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="suppstockGoodsName" name="GoodsName" type="text" ><br><br>
+			<label for="suppstockBrandName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="suppstockBrandName" name="BrandName"><br><br>
+			<label for="suppstockGoodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="suppstockGoodsId" name="stockGoodsId" type="text"><br><br>
+			<label for="suppstockOrderSn">订单编号：</label>
+			<input id="suppstockOrderSn" name="stockOrderSn" type="text"><br><br>
+			<label for="suppDemandwarehouse">需求仓库：</label>
+			<select name="warehouse" id="suppDemandwarehouse">
+    			<option value="2">深圳华秋华南仓</option>
+    			<option value="8">长沙华秋仓</option>
+			</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="suppstock" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/stock/daigoustock" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>代购销售补货</b></p>
+		<p>
+			<label for="daigoustockGoodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="daigoustockGoodsName" name="GoodsName" type="text" ><br><br>
+			<label for="daigoustockBrandName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="daigoustockBrandName" name="BrandName"><br><br>
+			<label for="daigoustockGoodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="daigoustockGoodsId" name="stockGoodsId" type="text"><br><br>
+			<label for="daigoustockOrderSn">订单编号：</label>
+			<input id="daigoustockOrderSn" name="stockOrderSn" type="text"><br><br>
+			<label for="pcbuid">客户编号：</label>
+			<input id="daigouppcbuid" name="pcbuid" type="text"><br><br>
+			<br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="daigoustock" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/voucher/voucherPay" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>现金券模拟消费</b></p>
+		<p>
+			<label for="voucherUnionId">华秋用户UID：</label>
+			<input id="voucherUnionId" name="voucherUnionId" type="text" ><br><br>
+			<label for="voucherOrderId">自定义订单id：</label>
+			<input type="text" id="voucherOrderId" name="voucherOrderId"><br>
+			<span id="hint-voucher-order-id" style="color: gray; font-size: 12px;">当明细条数已填时，订单id会根据明细条数叠加生成</span><br>
+			<label for="voucherOrderSn">自定义订单号：</label>
+			<input id="voucherOrderSn" name="voucherOrderSn" type="text"><br>
+			<span id="hint-voucher-order-sn" style="color: gray; font-size: 12px;">当明细条数已填时，订单号会根据明细条数叠加生成</span><br>
+			<label for="voucherOrderType">订单类型：</label>
+			<input id="voucherOrderType" name="voucherOrderType" type="text" style="width: 53px">
+			<label for="voucherOrderDetailNumber">明细条数：</label>
+			<input id="voucherOrderDetailNumber" name="voucherOrderDetailNumber" type="text" style="width: 53px"><br><br>
+			<label for="voucherOrderAmount">订单总金额：&nbsp;&nbsp;&nbsp;</label>
+			<input id="voucherOrderAmount" name="voucherOrderAmount" type="text"><br>
+			<span id="hint-voucher-order-amount" style="color: gray; font-size: 12px;">当明细条数已填时，总金额会根据明细条数平均分拆</span><br>
+			<label for="voucherOrderUseVoucherId">指定的现金券：</label>
+			<input id="voucherOrderUseVoucherId" name="voucherOrderUseVoucherId" type="text"><br>
+			<span id="hint-voucher-use_voucher_id" style="color: gray; font-size: 12px;">填入有效现金券id，为空时系统会选取剩余金额最大的</span>
+			<br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="vouherPay" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/userRegisterRechargeICOrder" method="post" style="padding-left:90px">
+		<p style="text-align: center"><b>用户注册充值IC下单</b></p>
+		<p>
+			<label for="userRegisterRechargeICOrderPhone">手机号码：</label>
+			<input id="userRegisterRechargeICOrderPhone" name="userRegisterRechargeICOrderPhone" type="text" style="width: 213px;" value="15912757721" placeholder="默认传15912757721"><br>
+			<span id="hint-userRegisterRechargeICOrderPhone-id" style="color: gray; font-size: 12px;">当手机号码未填写时，系统自动随机生成11位手机号码</span><br>
+			<label for="userRegisterRechargeICOrderName">用户名称：</label>
+			<input id="userRegisterRechargeICOrderName" name="userRegisterRechargeICOrderName" type="text" style="width: 213px;" value="jf_15113305" placeholder="默认传jf_15113305"><br>
+			<span id="hint-userRegisterRechargeICOrderName-id" style="color: gray; font-size: 12px;">用户名称非必填，对后续流程流转无影响</span><br>
+			<label for="userRegisterRechargeICOrderRechargeType">是否修改密码：</label>
+			<select name="userRegisterRechargeICOrderPasswordUpdateType" id="userRegisterRechargeICOrderPasswordUpdateType" style="width: 188px;">
+    			<option value="0">否</option>
+    			<option value="1">修改登录密码</option>
+				<option value="2">修改支付密码</option>
+				<option value="3">修改全部密码</option>
+			</select><br>
+			<span id="hint-userRegisterRechargeICOrderRechargeType-id" style="color: gray; font-size: 12px;">否不执行修改密码，修改全部密码仅修改登录和支付密码</span><br>
+			<label for="userRegisterRechargeICOrderLoginPassword">登录密码：</label>
+			<input id="userRegisterRechargeICOrderLoginPassword" name="userRegisterRechargeICOrderLoginPassword" type="text"  style="width: 60px;" value="ye123456" placeholder="默认传ye123456">
+			<label for="userRegisterRechargeICOrderPayPassword">支付密码：</label>
+			<input id="userRegisterRechargeICOrderPayPassword" name="userRegisterRechargeICOrderPayPassword" type="text" style="width: 60px;" value="123456" placeholder="默认传123456"><br><br>
+			<label for="userRegisterRechargeICOrderRechargeType">是否充值：</label>
+			<select name="userRegisterRechargeICOrderRechargeType" id="userRegisterRechargeICOrderRechargeType" style="width: 70px;">
+    			<option value="1">否</option>
+    			<option value="2">是</option>
+			</select>
+			<label for="userRegisterRechargeICOrderAmount">充值金额：</label>
+			<input id="userRegisterRechargeICOrderAmount" name="userRegisterRechargeICOrderAmount" type="text" style="width: 60px;"  value="5000" placeholder="默认传5000"><br>
+			<span id="hint-userRegisterRechargeICOrderAmount-id" style="color: gray; font-size: 12px;">是否充值选择是，充值金额必填且不得超过5000000</span><br>
+			<label for="userRegisterRechargeICOrderRechargePlaceAnOrderType">是否下单：</label>
+			<select name="userRegisterRechargeICOrderRechargePlaceAnOrderType" id="userRegisterRechargeICOrderRechargePlaceAnOrderType" style="width:69px;">
+				<option value="1">是</option>
+    			<option value="2">否</option>
+			</select>
+			<label for="userRegisterRechargeICOrderRechargePayType">是否支付：</label>
+			<select name="userRegisterRechargeICOrderRechargePayType" id="userRegisterRechargeICOrderRechargePayType" style="width: 69px;">
+				<option value="1">是</option>
+    			<option value="2">否</option>
+			</select><br>
+			<span id="hint-userRegisterRechargeICOrderRechargePlaceAnOrderType-id" style="color: gray; font-size: 12px;">是否下单为是，型号id和购买数量必填且购买数量符合倍数</span><br>
+			<label for="userRegisterRechargeICOrderGoodsId">型号id:</label>
+			<input id="userRegisterRechargeICOrderGoodsId" name="userRegisterRechargeICOrderGoodsId" type="text" style="width: 90px;">
+			<label for="userRegisterRechargeICOrderNumber">购买数量：</label>
+			<input id="userRegisterRechargeICOrderNumber" name="userRegisterRechargeICOrderNumber" type="text" style="width: 60px;" ><br><br>
+			<label for="userRegisterRechargeICOrderWarehouse">仓库：</label>
+<!--			<input id="warehouse" name="warehouse" type="text" ><br><br>-->
+				<select name="userRegisterRechargeICOrderWarehouse" id="userRegisterRechargeICOrderWarehouse">
+    				<option value="2">东莞仓</option>
+<!--    			<option value="8">长沙华秋仓</option>-->
+				</select>&nbsp;
+			<label for="userRegisterRechargeICOrderVatType">发票类型：</label>
+<!--			<input id="vat_type" name="vat_type" type="text" ><br><br>-->
+				<select name="userRegisterRechargeICOrderVatType" id="userRegisterRechargeICOrderVatType" style="width: 100px;">
+<!--    				<option value="3">不开发票</option>-->
+    				<option value="1">增值税发票</option>
+					<option value="0">普通发票</option>
+				</select><br><br>
+			<label for="userRegisterRechargeICOrderVatSubType">开票类型：</label>
+				<select name="userRegisterRechargeICOrderVatSubType" id="userRegisterRechargeICOrderVatSubType" style="width: 90px;">
+<!--    				<option value="0">不开发票</option>-->
+					<option value="2">数电增值税</option>
+    				<option value="1">纸质增值税</option>
+					<option value="3">普通增值税</option>
+				</select>
+				<label for="userRegisterRechargeICOrderShippingMethodType">是否贴片：</label>
+				<select name="userRegisterRechargeICOrderShippingMethodType" id="userRegisterRechargeICOrderShippingMethodType" style="width: 48px;">
+					<option value="1">否</option>
+					<option value="2">是</option>
+				</select><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="userRegisterRechargeICOrder" type="submit" value="执行" style="width: 170px; background-color: #c00"></p>
+		</form>
+	</div><br>
+	<div style="display: flex; " class="before">
+		<form action="/hqSrm/goodsIdSyncPage" method="post" >
+		<p style="text-align: center"><b>合作平台更新库存</b></p>
+		<p>
+			<label for="supplierName">供应商：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="supplierName" name="supplierName" type="text" ><br><br>
+			<label for="goodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="goodsName" name="goodsName"><br><br>
+			<label for="providerName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="providerName" name="providerName" type="text"><br><br>
+			<label for="encap">封装：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="encap" name="encap" type="text"><br><br>
+			<label for="minPage">最小包装：</label>
+			<input id="minPage" name="minPage" type="text" ><br><br>
+			<label for="MOQ">最小起订：</label>
+			<input id="MOQ" name="MOQ" type="text" ><br><br>
+			<label for="CNYDomesticStock">大陆库存：</label>
+			<input id="CNYDomesticStock" name="CNYDomesticStock" type="text" ><br><br>
+			<label for="MinStepPrice">最高单价：</label>
+			<input id="MinStepPrice" name="MinStepPrice" type="text" placeholder="CNY，第一阶梯售价"><br><br>
+			<label for="InlandDeliveryDay">大陆交期：</label>
+			<input id="InlandDeliveryDay" name="InlandDeliveryDay" type="text" ><br><br>
+			<label for="OverView">概述描述：</label>
+			<textarea id="OverView" name="OverView" style="width: 173px; height: 15px;"></textarea><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="goodsIdSyncPage" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/hqSrm/goodsIdSyncBatchPage" method="post" style="padding-left:90px; text-align: righ">
+		<p style="text-align: center" ><b>合作平台基于供应商批量更新单个库存</b></p>
+		<p>
+			<label for="goodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input type="text" id="BatchgoodsName" name="goodsName"><br><br>
+			<label for="providerName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="BatchproviderName" name="providerName" type="text"><br><br>
+			<label for="Batchencap">封装：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="Batchencap" name="encap" type="text"><br><br>
+			<label for="BatchminPage">最小包装：</label>
+			<input id="BatchminPage" name="minPage" type="text" ><br><br>
+			<label for="BatchMOQ">最小起订：</label>
+			<input id="BatchMOQ" name="MOQ" type="text" ><br><br>
+			<label for="BatchCNYDomesticStock">大陆库存：</label>
+			<input id="BatchCNYDomesticStock" name="CNYDomesticStock" type="text" ><br><br>
+			<label for="BatchMinStepPrice">最高单价：</label>
+			<input id="BatchMinStepPrice" name="MinStepPrice" type="text" placeholder="CNY，第一阶梯售价"><br><br>
+			<label for="BatchInlandDeliveryDay">大陆交期：</label>
+			<input id="BatchInlandDeliveryDay" name="InlandDeliveryDay" type="text" ><br><br>
+			<label for="BatchOverView">概述描述：</label>
+			<textarea id="BatchOverView" name="OverView" style="width: 173px; height: 15px;"></textarea><br><br>
+			<label for="cooperationType">筛选合作商合作类型：</label>
+			<select name="cooperationType" id="cooperationType" style="width: 96px;">
+    			<option value=""></option>
+				<option value="0">待定</option>
+				<option value="1">备货</option>
+				<option value="2">海外代购</option>
+				<option value="4">寄售</option>
+				<option value="5">代售现货</option>
+				<option value="6">代售期货</option>
+				<option value="3">项目采购</option>
+			</select><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="goodsIdSyncBatchPage" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/hqSrm/partnerCreate" method="post" style="padding-left:90px; text-align: righ">
+			<p style="text-align: center" ><b>供应商创建</b></p>
+			<p>
+				<label for="partnerSupplierName">供应商名称：</label>
+        		<input id="partnerSupplierName" name="supplierName" type="text" ><br><br>
+				<label for="partnersupplierBackName">后台名称：</label>
+        		<input id="partnersupplierBackName" name="supplierBackName" type="text" style="width: 186px;"><br><br>
+				<label for="partnersocialCreditCode">信用代码：</label>
+				<input id="partnersocialCreditCode" name="socialCreditCode" type="text" style="width: 186px;"><br><br>
+				<label for="partnerContacts">联系人：</label>
+        		<input id="partnerContacts" name="Contacts" type="text" style="width: 202px;"><br><br>
+				<label for="partnerPhone">手机号码：</label>
+        		<input id="partnerPhone" name="phone" type="text" style="width: 186px;"><br><br>
+				<label for="partnercompanyNature">公司性质：</label>
+				<select name="companyNature" id="partnercompanyNature" style="width: 195px;">
+					<option value="1">私企</option>
+					<option value="2">国企</option>
+					<option value="3">美资</option>
+					<option value="4">台资</option>
+					<option value="5">港资</option>
+					<option value="6">欧资</option>
+					<option value="7">日资</option>
+					<option value="8">新资</option>
+					<option value="9">其他</option>
+				</select><br><br>
+				<label for="partnerintendedType">合作类型：</label>
+				<select name="intendedType" id="partnerintendedType" style="width: 195px;">
+					<option value="0">一般采购</option>
+					<option value="1">寄售</option>
+					<option value="2">代售</option>
+				</select><br><br>
+				<label for="partnercompanyType">公司类型：</label>
+				<select name="companyType" id="partnercompanyType" style="width: 50px;">
+					<option value="1">集团(关联)公司</option>
+					<option value="2">国外原厂</option>
+					<option value="3">国内原厂</option>
+					<option value="4">代理商(原厂授权)</option>
+					<option value="5">混合分销商(代理+贸易)</option>
+					<option value="6">授权分销商(贸易商)</option>
+					<option value="7">独立分销商(贸易商)</option>
+					<option value="8">代购平台</option>
+					<option value="9">终端工厂</option>
+					<option value="10">供应链公司</option>
+					<option value="11">方案商(IDH)</option>
+				</select>
+				<label for="partnerspecialDevelopmentType">开发类型：</label>
+				<select name="specialDevelopmentType" id="partnerspecialDevelopmentType" style="width: 50px;">
+					<option value="0">非特殊</option>
+					<option value="1">特殊渠道</option>
+					<option value="2">特批文件</option>
+					<option value="3">客户指定供应商</option>
+					<option value="4">客户指定供应商</option>
+					<option value="5">BOM供应商</option>
+					<option value="6">临时供应商</option>
+					<option value="7">工程师专区供应商</option>
+				</select><br>
+				<label for="supplierSortMCC">供应商分类：</label><br>
+				<input type="checkbox" id="supplierSortMCC" name="supplierSort" value="1">
+				<label for="Imagetype" style="padding-right: 50px;">辅材消耗类</label>
+				<input type="checkbox" id="supplierSortIC" name="supplierSort" value="2">
+				<label for="supplierSortIC" style="padding-right: 50px;">元器件类</label><br>
+				<input type="checkbox" id="supplierSortPCB" name="supplierSort" value="3">
+				<label for="supplierSortPCB" style="padding-right: 82.5px;">PCB类</label>
+				<input type="checkbox" id="supplierSortPCBA" name="supplierSort" value="4">
+				<label for="supplierSortPCBA" style="padding-right: 50px;">PCBA类</label><br>
+				<input type="checkbox" id="supplierSortPCBAOutsource" name="supplierSort" value="5">
+				<label for="supplierSortPCBAOutsource" style="padding-right: 7.5px;">PCBA委外加工类</label>
+				<input type="checkbox" id="supplierSortOther" name="supplierSort" value="6">
+				<label for="supplierSortOther" style="padding-right: 50px;">其他</label><br>
+				<label for="myField2">复选框选中汇总：</label>
+				<textarea  id="myField2" name="myField"  style="width: 140px; height: 10px;"></textarea>
+				<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input id="partnerCreate" type="submit" value="执行" style="width: 170px;">
+			</p>
+		</form>
+		<form action="/ImportStockUp" method="post" style="padding-left:90px">
+    	<p style="text-align: center" ><b>DOS补备货</b></p>
+    	<p>
+        <label for="ImportStockUpGoodsName">备货型号：</label>
+        <input id="ImportStockUpGoodsName" name="ImportStockUpGoodsName" type="text" ><br><br>
+		<label for="ImportStockUpProviderName">备货品牌：</label>
+        <input id="ImportStockUpProviderName" name="ImportStockUpProviderName" type="text" ><br><br>
+		<label for="ImportStockUpEncap">备货封装：</label>
+        <input id="ImportStockUpEncap" name="ImportStockUpEncap" type="text"  value="-"><br><br>
+		<label for="ImportStockUpGoodsNoVaule">编码:</label>
+		<select name="ImportStockUpGoodsNoVauleType" id="ImportStockUpGoodsNoVauleType" style="width: 40px;">
+			<option value="否">否</option>
+			<option value="是">是</option>
+		</select>
+		<input id="ImportStockUpGoodsNoVaule" name="ImportStockUpGoodsNoVaule" type="text" style=><br>
+		<span id="hint-stockup-goods-no-type" style="color: gray; font-size: 12px;">编号为否且数据为空时，导入模板芯城编号为空</span><br>
+		<label for="ImportStockUpPurchasePrice">采购价:</label>
+        <input id="ImportStockUpPurchasePrice" name="ImportStockUpPurchasePrice" type="text" value="1" placeholder="默认传1" style="width: 30px;">
+		<label for="ImportStockUpPurchaseOrderSN">单号:</label>
+        <input id="ImportStockUpPurchaseOrderSN" name="ImportStockUpPurchaseOrderSN" type="text" style="width: 112px;"><br>
+		<span id="hint-stockup-order-sn" style="color: gray; font-size: 12px;">单号为补备货的销售单号,根据单号查询单号补备货</span><br>
+		<label for="ImportStockUpPackType">包装类型:</label>
+		<select name="ImportStockUpPackType" id="ImportStockUpPackType" style="width: 50px;">
+    			<option value="卷装">卷装(TR)</option>
+				<option value="剪切带">剪切带(CT)</option>
+				<option value="托盘">托盘(TRAY)</option>
+				<option value="散装">散装(BULK)</option>
+				<option value="管装">管装(TUBE)</option>
+				<option value="袋装">袋装(BAG)</option>
+				<option value="盒装">盒装(PACKAGE)</option>
+		</select>
+		<label for="ImportStockUpPackNumber">包装数量:</label>
+        <input id="ImportStockUpPackNumber" name="ImportStockUpPackNumber" type="text" style="width: 52px;"><br><br>
+		<label for="ImportStockUpStockNumber">补货数量：</label>
+        <input id="ImportStockUpStockNumber" name="ImportStockUpStockNumber" type="text" style="width: 80px;">
+		<label for="ImportStockUpdDc">DC:</label>
+        <input id="ImportStockUpdDc" name="ImportStockUpDc" type="text" style="width: 48px;"><br><br>
+		<label for="ImportStockUpStockType">备货类型：</label>
+		<select name="ImportStockUpStockType" id="ImportStockUpStockType" style="width: 73px;">
+    			<option value="常规备货">常规备货</option>
+				<option value="项目备货">项目备货</option>
+				<option value="项目补货">项目补货</option>
+				<option value="销售补货">销售补货</option>
+				<option value="寄售备货">寄售备货</option>
+		</select>
+		<label for="ImportStockUpMTSRep">补备货:</label>
+		<select name="ImportStockUpMTSRep" id="ImportStockUpMTSRep" style="width: 46px;">
+				<option value="备货">备货</option>
+				<option value="补货">补货</option>
+		</select><br><br>
+		<label for="ImportStockUpWarehouseName">交货仓库：</label>
+		<select name="ImportStockUpWarehouseName" id="ImportStockUpWarehouseName" style="width: 106px;">
+				<option value="深圳华秋华南仓">深圳华秋华南仓</option>
+				<option value="长沙华秋仓">长沙华秋仓</option>
+		</select>
+		<label for="ImportStockUpFileType">文件:</label>
+		<select name="ImportStockUpFileType" id="ImportStockUpFileType" style="width: 30px;">
+				<option value="1">是</option>
+				<option value="0">否</option>
+		</select><br>
+		<span id="hint-stockup-file-type" style="color: gray; font-size: 12px;">文件为是否需要导入需求文件,但不参与接口传参</span><br>
+		<label for="ImportStockUpUrgentType">加急:</label>
+			<select name="ImportStockUpUrgentType" id="ImportStockUpUrgentType" style="width: 35px;">
+				<option value="否">否</option>
+				<option value="是">是</option>
+			</select>
+		<label for="ImportStockUpExecutionType">分段执行：</label>
+			<select name="ImportStockUpExecutionType" id="ImportStockUpExecutionType" style="width: 100px;">
+				<option value="all">全流程</option>
+				<option value="import_need_completed">导入新需求完成</option>
+				<option value="search_audit_completed">搜索和审核完成</option>
+				<option value="create_procure_completed">生成采购单完成</option>
+				<option value="procure_process_completed">采购单处理完成</option>
+				<option value="warehous_process_completed">入库单处理完成</option>
+			</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="ImportStockUp" type="submit" value="执行" style="width: 177px;">
+		</p>
+    	</form>
+		<form action="/AutoStock" method="post" style="padding-left:90px">
+		<p style="text-align: center" ><b>DOS自动补货触发模拟</b></p>
+    	<p>
+        <label for="AutoStockGoodsName">查询型号：</label>
+        <input id="AutoStockGoodsName" name="AutoStockGoodsName" type="text" ><br><br>
+		<label for="AutoStockProviderName">查询品牌：</label>
+        <input id="AutoStockProviderName" name="AutoStockProviderName" type="text" ><br><br>
+		<label for="AutoStockGoodsNo">芯城编码：</label>
+        <input id="AutoStockGoodsNo" name="AutoStockGoodsNo" type="text" ><br><br>
+		<label for="AutoStockGoodsId">库存ID：&nbsp;&nbsp;&nbsp;</label>
+        <input id="AutoStockGoodsId" name="AutoStockGoodsId" type="text" ><br><br>
+		<input id="AutoStock" type="submit" value="执行" style="width: 170px;margin-top:330px;margin-left: 90px;">
+		</p>
+		</form>
+	</div>
+	</p>
+	<p style="font-weight: bold"><font size="6" color="green">WMS系统出入库操作类</font>
+	<div style="display: flex;" class="after">
+		<form action="/wmsOut" method="post">
+		<p>wms出库操作(仅出库)</p>
+		<p>
+			<label for="Outorder">ERP出库单号：</label>
+			<input id="Outorder" name="Outorder" type="text" style="width: 177px;"><br><br>
+			<label for="invoiceNo">WMS预出库单：</label>
+			<input id="invoiceNo" name="invoiceNo" type="text" ><br><br>
+			<label for="smtOrderSn">SMT委外单号：</label>
+			<input id="smtOrderSn" name="smtOrderSn" type="text" style="width: 173px;"><br><br>
+			<label for="Outnumber">出库数量：</label>
+			<input id="Outnumber" name="number" type="text" style="width: 203px;"><br><br>
+			<label for="Outwarehouse">出库仓库：</label>
+			<select name="warehouse" id="Outwarehouse" style="width: 210px;">
+    			<option value="2">深圳华秋华南仓</option>
+    			<option value="8">长沙华秋仓</option>
+			</select><br><br>
+			<label for="ExecutionType">分段执行：</label>
+			<select name="ExecutionType" id="ExecutionType" style="width: 210px;">
+				<option value="all">全流程</option>
+				<option value="pick_completed">拣货完成</option>
+				<option value="pack_completed">打包完成</option>
+				<option value="alone_out">单独出库(打包后再次单独出库)</option>
+			</select><br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="wmsOut" type="submit" value="执行" style="width: 170px;margin-top:10px">
+		</p>
+		</form>
+		<form action="/wmsInn" method="post" style="padding-left:90px">
+		<p>wms入库操作(含UAT上架)</p>
+		<p>
+			<label for="Innorder">入库单号：</label>
+			<input id="Innorder" name="Innorder" type="text" ><br><br>
+			<label for="Innnumber">入库数量：</label>
+			<input id="Innnumber" name="number" type="text" ><br><br>
+			<label for="Innwarehouse">入库仓库：</label>
+			<select name="warehouse" id="Innwarehouse" style="width: 177px;">
+    			<option value="2">深圳华秋华南仓</option>
+    			<option value="8">长沙华秋仓</option>
+			</select><br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="wmsInn" type="submit" value="执行" style="width: 170px;margin-top:160px">
+		</p>
+		</form>
+		<form action="/wmsTheupper" method="post" style="padding-left:90px">
+		<p>wms上架操作(FAT上架在外网)</p>
+		<p>
+			<label for="Executvibe">环境：</label>
+			<select name="Executvibe" id="Executvibe">
+    			<option value="UAT">UAT</option>
+    			<option value="FAT">FAT</option>
+			</select>&nbsp;
+			<label for="Inntheuppertype">上架类型:</label>
+			<select name="Inntheuppertype" id="Inntheuppertype">
+    			<option value="0">批量上架</option>
+    			<option value="1">单个上架</option>
+			</select><br><br>
+			<label for="Innsn">入库单号：</label>
+			<input id="Innsn" name="Innsn" type="text" ><br><br>
+			<label for="theuppersn">上架单号：</label>
+			<input id="theuppersn" name="theuppersn" type="text" ><br><br>
+			<label for="ASNtheuppersn">ASN单号：</label>
+			<input id="ASNtheuppersn" name="ASNtheuppersn" type="text" ><br><br>
+			<label for="ProductLabel">商品标签：</label>
+			<input id="ProductLabel" name="ProductLabel" type="text" placeholder="支持多个，以英文逗号隔开"><br><br>
+			<label for="TagDay">入库日期:</label>
+			<input id="TagDay" name="TagDay" type="text" placeholder="日期格式：yyyy-mm-dd" style="width: 80px;">
+			<label for="LabelCreateNumber">个数:</label>
+			<input id="LabelCreateNumber" name="LabelCreateNumber" type="text" value="50" style="width: 50px;"><br>
+			<span id="hint-LabelCreateNumber" style="color: gray; font-size: 12px;">FAT且上架类型为单个上架时，指定生成标签个数</span><br>
+			<label for="theupperwarehouse">上架仓库：&nbsp;</label>
+			<select name="warehouse" id="theupperwarehouse" style="width: 172px;">
+    			<option value="2">深圳华秋华南仓</option>
+    			<option value="8">长沙华秋仓</option>
+				<option value="105">PCBA东莞仓</option>
+				<option value="106">PCBA长沙仓</option>
+			</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="/wmsTheupper" type="submit" value="执行" style="width: 170px;margin-top:40px">
+		</p>
+		</form>
+		<form action="/wmsInventory" method="post" style="padding-left:90px">
+		<p>wms盘点操作(FAT盘点在外网)</p>
+		<p>
+			<label for="InventoryExecutvibe">环境：</label>
+			<select name="Executvibe" id="InventoryExecutvibe">
+    			<option value="UAT">UAT</option>
+    			<option value="FAT">FAT</option>
+			</select>&nbsp;
+			<label for="Inventorytype">盘点类型:</label>
+			<select name="Inventorytype" id="Inventorytype">
+    			<option value="0">批量盘点</option>
+    			<option value="1">单个盘点</option>
+			</select><br><br>
+			<label for="InventoryNo">盘点单号：</label>
+			<input id="InventoryNo" name="InventoryNo" type="text" ><br><br>
+			<label for="transformNo">转换单号：</label>
+			<input id="transformNo" name="transformNo" type="text" ><br><br>
+			<label for="InventoryProductLabel">商品标签：</label>
+			<input id="InventoryProductLabel" name="ProductLabel" type="text" placeholder="支持多个，以英文逗号隔开"><br><br>
+			<label for="InventoryTagDay">盘点日期：</label>
+			<input id="InventoryTagDay" name="TagDay" type="text" placeholder="日期格式：yyyy-mm-dd"><br><br>
+			<label for="InventoryStatus">盘点状态：&nbsp;</label>
+			<select name="InventoryStatus" id="InventoryStatus" style="width: 172px;">
+				<option value="7">已提交</option>
+				<option value="1">盘点中</option>
+			</select><br><br>
+			<label for="Inventorywarehouse">盘点仓库：&nbsp;</label>
+			<select name="warehouse" id="Inventorywarehouse" style="width: 172px;">
+    			<option value="2">深圳华秋华南仓</option>
+    			<option value="8">长沙华秋仓</option>
+				<option value="105">PCBA东莞仓</option>
+				<option value="106">PCBA长沙仓</option>
+			</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="/wmsInventory" type="submit" value="执行" style="width: 170px;margin-top:40px">
+		</p>
+		</form>
+		<form action="searchToolV5" method="post" style="padding-left:90px">
+		<p>搜索查询运行内容工具</p>
+			<label for="searchToolV5SupplierNname">供应商名称：</label>
+			<input type="text"
+				   id="searchToolV5SupplierNname"
+				   name="SupplierNname"
+				   list="supplierList"
+				   placeholder="请输入供应商名称搜索"
+				   autocomplete="off"
+				   style="width: 200px;">
+			<datalist id="supplierList">
+				{% for name, code in suppliers.items() %}
+					<option value="{{ name }}" data-code="{{ name }}"></option>
+				{% endfor %}
+			</datalist>
+
+		</form>
+	</div>
+	</p>
+	<p style="font-weight: bold"><font size="6" color="red">造单辅助类</font>
+	<div style="display: flex;" class="after">
+		<form action="/openpay" method="post">
+		<p>开放接口支付</p>
+		<p>
+			<label for="openicOrder">订单编号：</label>
+			<input id="openicOrder" name="order" type="text" ><br><br>
+			<label for="openicOutOrder">自设编号：</label>
+			<input id="openicOutOrder" name="Outorder" type="text" ><br><br>
+			<label for="openicOrderId">订单ID：</label>
+			<input id="openicOrderId" name="OrderId" type="text" style="width: 185px;"><br><br>
+			<label for="openicDataAmount">传入金额：</label>
+			<input id="openicDataAmount" name="DataAmount" type="text" ><br>
+			<span id="hint-openapi-data-amount" style="color: gray; font-size: 12px;">传入金额非实际核销金额，只模拟第三方传入金额</span><br>
+			<label for="openpayType">支付类型：</label>
+			<select name="payType" id="openpayType" style="width: 170px;">
+    			<option value="1">余额支付</option>
+    			<option value="2">信用支付</option>
+				<option value="3">转账支付</option>
+			</select><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="openpay" type="submit" value="执行" style="width: 170px;">
+		</form>
+		<form action="/opendetail" method="post" style="padding-left:90px">
+		<p>开放接口订单详情</p>
+		<p>
+			<label for="openicOrderSn">订单编号：</label>
+			<input id="openicOrderSn" name="OrderSn" type="text" ><br><br>
+			<label for="openicOrderId">订单Id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="openicOrderdetailId" name="orderId" type="text" ><br><br>
+			<label for="openicOutOrderNo">自设编号：</label>
+			<input id="openicOutOrderNo" name="orderNo" type="text" ><br><br>
+			<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="opendetail" type="submit" value="执行" style="width: 170px;">
+		</form>
+		<form action="/recharge" method="post" style="padding-left:90px">
+		<p style="text-align: center">充值余额</p>
+		<p>
+			<label for="rechargefrequency">充值次数：</label>
+			<input id="rechargefrequency" name="frequency" type="text" value="1" placeholder="默认传1">次<br><br>
+			<label for="rechargephone">手机号码：</label>
+			<input id="rechargephone" name="phone" type="text" ><br><br>
+			<label for="rechargepassword">登录密码：</label>
+			<input id="rechargepassword" name="password" type="text" ><br><br>
+			<label for="rechargeAmount">充值金额：</label>
+			<input id="rechargeAmount" name="Amount" type="text" ><br><br>
+			<label for="rechargeActivityType">参与：</label>
+			<select name="rechargeActivityType" id="rechargeActivityType" style="width: 115px;">
+    			<option value="不参与">不参与</option>
+				<option value="IC">IC</option>
+				<option value="SMT">PCBA</option>
+    			<option value="PCB">PCB</option>
+			</select>年终充值活动<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="recharge" type="submit" value="执行" style="width: 170px;">
+		</form>
+		<form action="/banlkstatement" method="post" style="padding-left:90px">
+		<p style="text-align: center">对公转账银行流水同步模拟</p>
+			<label for="banlkstatementfrequency">同步次数：</label>
+			<input id="banlkstatementfrequency" name="frequency" type="text" value="1" placeholder="默认传1">次<br><br>
+			<label for="banlkstatementAmount">充值金额：</label>
+			<input id="banlkstatementAmount" name="Amount" type="text" ><br><br>
+			<br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="banlkstatement" type="submit" value="执行" style="width: 170px;">
+		</form>
+		<form action="/eccnSync" method="post" style="padding-left:90px">
+		<p style="text-align: center">第三方ECCN模拟写入DOS</p>
+			<label for="eccnSyncfrequency">同步次数：</label>
+			<input id="eccnSyncfrequency" name="frequency" type="text" value="1" placeholder="默认传1">次<br><br>
+			<label for="eccnSyncGoodsName">型号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="eccnSyncGoodsName" name="goodsName" type="text" ><br><br>
+			<label for="eccnSyncBrandName">品牌：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="eccnSyncBrandName" name="brandName" type="text" ><br><br>
+			<label for="eccnSyncEccnCode">ECCN：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="eccnSyncEccnCode" name="eccnCode" type="text" ><br><br>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="eccnSync" type="submit" value="执行" style="width: 170px;">
+		</form>
+		</p>
+	</div>
+	<div style="display: flex;" class="after">
+		<form action="/withdrawAct" method="post">
+		<p style="text-align: center">提现流程，仅支持对活动金额提现</p>
+		<p>
+			<label for="rechargeOrder">充值订单：</label>
+			<input id="rechargeOrder" name="rechargeOrder" type="text"><br><br>
+			<label for="withdrawphone">手机号码：</label>
+			<input id="withdrawphone" name="phone" type="text" ><br><br>
+			<label for="withdrawpassword">登录密码：</label>
+			<input id="withdrawpassword" name="password" type="text" ><br><br>
+			<label for="withdrawAmount">提现金额：</label>
+			<input id="withdrawAmount" name="Amount" type="text" ><br><br>
+			<label for="paypassword">支付密码：</label>
+			<input id="paypassword" name="paypassword" type="text" ><br><br>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="withdrawAct" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/consignPublish" method="post" style="padding-left:90px">
+		<p style="text-align: center">寄售发布发货入库</p>
+		<p>
+			<label for="consignSn">寄售单号：</label>
+			<input id="consignSn" name="consignSn" type="text"><br><br>
+			<label for="consignGoodsName">型号名称：</label>
+			<input id="consignGoodsName" name="consignGoodsName" type="text" ><br><br>
+			<label for="supplierSn" style="width: 80px;maxlength: 21px;display: inline-block;word-wrap: break-word;">供应商展示名称：</label>
+			<input id="supplierSn" name="supplierSn" type="text" ><br><br>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="consignPublish" type="submit" value="执行" style="width: 170px;margin-top:77px">
+		</p>
+		</form>
+		<form action="/qrcodekit/qrcodeLink" method="post" style="padding-left:90px">
+		<p style="text-align: center">生成二维码工具</p>
+		<p>
+			<label for="qrcodeLinkType">生成类型：</label>
+			<select name="qrcodeLinkType" id="qrcodeLinkType" style="width: 180px;">
+    			<option value="链接URL">链接URL</option>
+				<option value="字典格式">字典</option>
+			</select><br><br>
+			<label for="qrcodeLinkData">生成信息：</label>
+			<!----- 设置输入框长度200PX,高度50px 且支持换行 -->
+			<textarea id="qrcodeLinkData" name="urlLink" style="width: 180px; height: 125px;"></textarea><br><br>
+<!--			<label for="urlLink">链接URL：</label>-->
+<!--			<input id="urlLink" name="urlLink" type="text"><br><br>-->
+			<label for="qrcodeLinkType">二维码：</label>
+			<div id="qrcode">
+				{% if qr_image %}
+            		<img src="data:image/png;base64,{{ qr_image }}" alt="QR Code" style="width: 160px;height: 160px;padding-left: 45\;padding-right: 45px;padding-left: 65px;">
+			    {% endif %}
+    		</div>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="qrcodeLink" type="submit" value="执行" style="width: 170px;margin-top:15px">
+		</p>
+		</form>
+		<form action="/decodekit/decodeLink" method="post" style="padding-left:90px">
+		<p style="text-align: center">解码二维码工具</p>
+		<p>
+			<label for="fileInput">解码文件：</label>
+			<input type="file" id="fileInput" accept="image/*">
+			<p id="result" style="user-select: text; cursor: text;"></p>
+			<!--
+			提示文案显示控制:
+						默认隐藏提示文案 (display: none;)。
+						在成功解码时显示提示文案 (display: block;)。
+						在未解码或未上传图片时隐藏提示文案。
+			-->
+			<p id="hint" style="color: gray; font-size: 12px; text-align: center; margin-top: 5px; display: none;">双击上面的结果可复制解码结果</p>
+			<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<button id="decodeButton" type="button" value="" style="width: 170px;margin-top:15px">执行</button>
+			<script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+
+		</p>
+		</form>
+		<form action="/sensitiveWords/detection" method="post" style="padding-left:35px">
+		<p style="text-align: center">问答敏感词检测</p>
+		<p>
+			<label for="Title">问答标题：</label>
+			<textarea id="Title" name="Title" style="width: 180px; height: 13px;"></textarea><br><br>
+			<label for="SeoTitle">SEO标题：</label>
+			<textarea id="SeoTitle" name="SeoTitle" style="width: 180px; height: 13px;"></textarea><br><br>
+			<label for="SeoKeyword">SEO关键词：</label>
+			<textarea id="SeoKeyword" name="SeoKeyword" style="width: 166px; height: 13px;"></textarea><br><br>
+			<label for="SeoDesc">SEO简介：</label>
+			<textarea id="SeoDesc" name="SeoDesc" style="width: 180px; height: 13px;"></textarea><br><br>
+			<label for="replyContent">问答答案：</label>
+			<textarea id="replyContent" name="replyContent" style="width: 180px; height: 13px;"></textarea><br><br>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="sensitiveWordsDetection" type="submit" value="执行" style="width: 170px;margin-top:15px">
+		</p>
+		</form>
+
+	</div>
+	<div style="display: flex;" class="after">
+		<form action="/orderCompanyTransferWriteOff" method="post">
+		<p style="text-align: center">订单公司转账核销(目前仅支持IC)</p>
+		<p>
+			<label for="orderWriteOff">核销订单：</label>
+			<input id="orderWriteOff" name="orderWriteOff" type="text"><br><br>
+			<label for="companyTransferStatementId">转账流水：</label>
+			<input id="companyTransferStatementId" name="companyTransferStatementId" type="text"><br>
+			<span id="hint-company-transfer-statement_id" style="color: gray; font-size: 12px;">单号为ERP公司转账查询：第一列, 非必填</span><br>
+			<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="orderCompanyTransferWriteOff" type="submit" value="执行" style="width: 170px;margin-top:180px;margin-left: 20px;">
+		</p>
+		</form>
+		<form action="/useryzmcode" method="post" style="padding-left:90px">
+		<p style="text-align: center">验证码获取</p>
+		<p>
+			<label for="yzmCodeType">验证码类型：</label>
+			<select name="yzmCodeType" id="yzmCodeType" style="width: 170px;">
+    			<option value="1">注册登录类</option>
+    			<option value="2">支付密码类</option>
+				<option value="3">企业认证类</option>
+				<option value="4">用户注销类</option>
+			</select><br><br>
+			<label for="yzmCodePhone">手机号码：</label>
+			<input id="yzmCodePhone" name="yzmCodePhone" type="text" style="width: 180px;"><br><br>
+			<label for="yzmCodeUid">华秋UID：</label>
+			<input id="yzmCodeUid" name="yzmCodeUid" type="text" style="width: 180px;"><br>
+			<span id="hint-yzmCodePhone-yzmCodeUid-statement_id" style="color: gray; font-size: 12px;">验证码类型为注册登录类时，手机号码必填<br>企业认证类时，手机号码必填<br>用户注销类，手机号码必填<br>支付密码类时，UID必填</span><br>
+			&nbsp;&nbsp;
+			<input id="useryzmcode" type="submit" value="执行" style="width: 170px;margin-top:135px;margin-left: 75px;">
+		</p>
+		</form>
+		<form action="/searchoverseas" method="post" style="padding-left:90px">
+		<p style="text-align: center">获取海外库存</p>
+		<p>
+			<label for="overseasGoodsName">型号名称：</label>
+			<input id="overseasGoodsName" name="overseasGoodsName" type="text" style="width: 180px;"><br><br>
+			<label for="overseasGoodsNo">商品编码：</label>
+			<input id="overseasGoodsNo" name="overseasGoodsNo" type="text" style="width: 180px;"><br><br>
+			<label for="overseasGoodsBrand">型号品牌：</label>
+			<input id="overseasGoodsBrand" name="overseasGoodsBrand" type="text" style="width: 180px;"><br><br>
+			<label for="overseasGoodsReturnNumber">返回条数：</label>
+			<input id="overseasGoodsReturnNumber" name="overseasGoodsReturnNumber" type="text" style="width: 180px;"><br><br>
+			<label for="overseasGoodsBrandAlias">品牌别名：</label>
+			<input id="overseasGoodsBrandAlias" name="overseasGoodsBrandAlias" type="text" style="width: 180px;"><br>
+			<span id="hint-searchoverseas" style="color: gray; font-size: 12px;">型号名称必填<br>若品牌别名填了，则品牌名称可不填<br>多个名称用英文逗号隔开<br></span><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="searchoverseas" type="submit" value="执行" style="width: 170px;">
+		</p>
+		</form>
+		<form action="/hqTaskTool" method="post" style="padding-left:90px">
+		<p style="text-align: center">服务器任务执行(仅限内网)</p>
+		<p>
+			<label for="hqTaskenvironmentType">执行环境：</label>
+			<select name="hqTaskenvironmentType" id="hqTaskenvironmentType" style="width: 185px;">
+    			<option value="fat">测试（FAT）环境</option>
+    			<option value="uat">预发布（UAT）环境</option>
+			</select><br><br>
+			<label for="hqTaskName">任务名称：</label>
+			<input id="hqTaskName" name="hqTaskName" type="text" style="width: 180px;"><br><br>
+			<label for="hqTaskMacthType">任务匹配：</label>
+			<select name="hqTaskMacthType" id="hqTaskMacthType" style="width: 185px;">
+    			<option value=1>精确匹配</option>
+    			<option value=0>模糊匹配</option>
+			</select><br><br>
+			<label for="hqTaskActionName">执行类型：</label>
+			<select name="hqTaskActionName" id="hqTaskActionName" style="width: 185px;">
+    			<option value="start">启动</option>
+    			<option value="stop">停止</option>
+				<option value="restart">重启</option>
+			</select><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="hqTaskTool" type="submit" value="执行" style="width: 170px;margin-top:145px">
+		</p>
+		</form>
+		<form action="/orderSensitiveEncryptAndDecrypt" method="post" style="padding-left:90px">
+	<p style="text-align:center">接口加解密</p>
+	<p>
+		<label for="orderSensitiveEncryptAndDecryptType">执行方式：</label>
+		<select name="ExecutionType" id="orderSensitiveEncryptAndDecryptType" style="width: 232px">
+			<option value="1">加密</option>
+			<option value="2">解密</option>
+			<option value="3">自动解密</option>
+		</select><br><br>
+		<label for="orderSensitiveEncryptAndDecryptData">加解密信息：</label>
+		<!----- 设置输入框长度200PX,高度50px 且支持换行 -->
+		<textarea id="orderSensitiveEncryptAndDecryptData" name="data" style="width: 247px; height: 212px;"></textarea>
+		<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="orderSensitiveEncryptAndDecrypt" type="submit" value="执行" style="width: 160px;margin-top:30px">
+	</p>
+	</form>
+
+	</div>
+	<p style="font-weight: bold"><font size="6" color="red">后台操作类</font></p>
+	<div style="display: flex;" class="after">
+    <form action="/hqshop" method="post">
+    <p>专题建立</p>
+    <p>
+		<label for="activityName">专题活动名称：</label>
+        <textarea id="activityName" name="activityName" style="width: 170px;height: 15px;"></textarea><br>
+		<label for="SpecialSubjectName">专题名称：</label>
+        <textarea id="SpecialSubjectName" name="SpecialSubjectName" style="width: 203px;height: 15px;"></textarea><br>
+        <label for="activityId">活动id：</label>
+        <input id="activityId" name="activityId" type="text" style="width: 70px; padding-right: 4px;">
+        <label for="SpecialSubjectId">专题id：</label>
+        <input id="SpecialSubjectId" name="SpecialSubjectId" type="text" style="width: 70px;"><br>
+		<label for="appSiteType">站点：</label>
+			<select name="appSiteType" id="appSiteType">
+    			<option value="1">华秋商城</option>
+    			<option value="2">华秋智造</option>
+				<option value="2">华秋电路</option>
+				<option value="3">电子发烧友</option>
+			</select>
+		<label for="clientType">平台：</label>
+			<select name="clientType" id="clientType">
+			    <option value="1">PC</option>
+    			<option value="2">APP</option>
+			</select><br>
+		<label for="Imagetype">组件类型：</label><br>
+		<input type="checkbox" id="Imagetype" name="moduleType" value="单张图片">
+		<label for="Imagetype" style="padding-right: 50px;">单张图片</label>
+		<input type="checkbox" id="Imagestype" name="moduleType" value="多张图片">
+		<label for="Imagestype">多张图片</label><br>
+		<input type="checkbox" id="Sharetype" name="moduleType" value="分享组件">
+		<label for="Sharetype" style="padding-right: 50px;">分享组件</label>
+		<input type="checkbox" id="Hypertexttype" name="moduleType" value="超级文本">
+		<label for="Hypertexttype">超级文本</label><br>
+		<input type="checkbox" id="VirtualBrowsingtype" name="moduleType" value="虚拟浏览">
+		<label for="VirtualBrowsingtype" style="padding-right: 50px;">虚拟浏览</label>
+		<input type="checkbox" id="TextAndImagetype" name="moduleType" value="左文右图">
+		<label for="TextAndImagetype">左文右图</label><br>
+		<input type="checkbox" id="Pendanttype" name="moduleType" value="挂件组件">
+		<label for="Pendanttype" style="padding-right: 50px;">挂件组件</label>
+		<input type="checkbox" id="FullColumntype" name="moduleType" value="通栏图片">
+		<label for="FullColumntype">通栏图片</label><br>
+		<input type="checkbox" id="FormElementtype" name="moduleType" value="表单组件">
+		<label for="FormElementtype" style="padding-right: 50px;">表单组件</label>
+		<input type="checkbox" id="Lotterytype" name="moduleType" value="抽奖转盘">
+		<label for="Lotterytype">抽奖转盘</label><br>
+		<input type="checkbox" id="Signtype" name="moduleType" value="注册组件（一）">
+		<label for="QuickOrdertype" style="padding-right: 50px;">注册组件</label>
+		<input type="checkbox" id="Registertype" name="moduleType" value=报名组件(普通版)">
+		<label for="QuickOrdertype">报名组件</label><br>
+		<input type="checkbox" id="Bannertype" name="moduleType" value="滑动式单图">
+		<label for="Bannertype" style="padding-right: 33.5px;">滑动式单图</label>
+		<input type="checkbox" id="Aspect1type" name="moduleType" value="看点组件1">
+		<label for="Aspect1type">看点组件1</label><br>
+		<input type="checkbox" id="RichTexttype" name="moduleType" value="文字">
+		<label for="RichTexttype" style="padding-right: 82.5px;">文字</label>
+		<input type="checkbox" id="NavBartype" name="moduleType" value="导航菜单(一)">
+		<label for="NavBartype">导航菜单(一)</label><br>
+		<input type="checkbox" id="Images2type" name="moduleType" value="图片组件2">
+		<label for="Images2type" style="padding-right: 41.5px;">图片组件2</label>
+		<input type="checkbox" id="Images3type" name="moduleType" value="图片组件3">
+		<label for="Images3type">图片组件3</label><br>
+		<input type="checkbox" id="Images4type" name="moduleType" value="图片组件4">
+		<label for="Images4type" style="padding-right: 41.5px;">图片组件4</label>
+		<input type="checkbox" id="Article1type" name="moduleType" value="文章组件1">
+		<label for="Article1type">文章组件1</label><br>
+		<input type="checkbox" id="MultiGraph2type" name="moduleType" value="多张图片2">
+		<label for="MultiGraph2type" style="padding-right: 41.5px;">多张图片2</label>
+		<input type="checkbox" id="MultiGraph3type" name="moduleType" value="多张图片3">
+		<label for="MultiGraph3type">多张图片3</label><br>
+		<input type="checkbox" id="Coupontype" name="moduleType" value="优惠券">
+		<label for="Coupontype" style="padding-right: 66px;">优惠券</label>
+		<input type="checkbox" id="Besttype" name="moduleType" value="热门推荐">
+		<label for="Sampletype">热门推荐</label><br>
+		<input type="checkbox" id="Sampletype" name="moduleType" value="样品组件">
+		<label for="Sampletype" style="padding-right: 50px;">样品组件</label>
+		<input type="checkbox" id="GoodsListtype" name="moduleType" value="商品列表">
+		<label for="GoodsListtype">商品列表</label><br>
+		<input type="checkbox" id="HandleImg1type" name="moduleType" value="交互图片组件1">
+		<label for="HandleImg1type" style="padding-right: 8px;">交互图片组件1</label>
+		<input type="checkbox" id="QuickOrdertype" name="moduleType" value="PCB-快捷下单样式(一)">
+		<label for="QuickOrdertype">PCB快捷下单</label><br>
+		<input type="checkbox" id="OrderSalesRankingtype" name="moduleType" value="排行榜（一）">
+		<label for="QuickOrdertype">排行榜</label><br>
+
+		<label for="templateType">模板：</label>
+			<select name="templateType" id="templateType" style="width: 90px;">
+    			<option value="0">不引用模板</option>
+    			<option value="1">品牌专区模板(一)</option>
+				<option value="2">双十一专题模板</option>
+				<option value="3">慕尼黑专题模板</option>
+				<option value="4">大会主页模板</option>
+				<option value="5">展台看点模板</option>
+				<option value="6">大会报道模板</option>
+				<option value="7">大会回顾模板</option>
+				<option value="8">2025年4月慕尼黑专题模板</option>
+				<option value="9">2025双十一抽奖模板</option>
+				<option value="10">2025双十二抽奖模板</option>
+				<option value="11">2026年3月抽奖模板</option>
+			</select>
+		<label for="topicStatusType">专题状态:</label>
+			<select name="topicStatusType" id="topicStatusType">
+			    <option value="0">草稿/存储</option>
+    			<option value="1">发布</option>
+			</select><br>
+		<label for="myField1">复选框选中汇总：</label>
+		<textarea  id="myField1" name="myField1"  style="width: 300px; height: 20px;"></textarea><br>
+		<label for="skipUrl">跳转URL：</label>
+		<input id="skipUrl" name="skipUrl" type="text" style="width: 214.5px;"><br>
+		<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="hqshop" type="submit" value="执行" style="width: 170px;">
+	</p>
+    </form>
+	<form action="/coupon" method="post" style="padding-left: 30px;width: 350px;">
+		<p>营销优惠券创建-仅支持IC和bom优惠券</p>
+		<label for="couponName">优惠券名称:</label>
+		<input id="couponName" name="couponName" type="text" style="width: 190px;"><br><br>
+		<label for="effectiveType">有效期类型:</label>
+		<select name="effectiveType" id="effectiveType">
+    			<option value="2">领取后</option>
+				<option value="1">固定时间</option>
+		</select>&nbsp;&nbsp;
+		<label for="couponExpireDays">领取后:</label>
+		<input id="couponExpireDays" name="couponExpireDays" type="text" style="width: 30px;" >天<br><br>
+		<label for="useType">折扣类型:</label>
+		<select name="useType" id="useType">
+    			<option value="2">满减金额</option>
+				<option value="3">折扣率</option>
+		</select>&nbsp;
+		<label for="couponAmount">优惠金额:</label>
+		<input placeholder="CNY" id="couponAmount" name="couponAmount" type="text" style="width: 35px;"><br><br>
+		<label for="couponDiscount">折扣:</label>
+		<input id="couponDiscount" name="couponDiscount" type="text" value="99.9" placeholder="%" style="width: 55px;">&nbsp;
+		<label for="orderAmountLimit">最低消费金额:</label>
+		<input placeholder="CNY" id="orderAmountLimit" name="orderAmountLimit" type="text" value="0" style="width: 50px;"><br><br>
+		<label for="couponType">优惠券类型：</label><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="checkbox" id="iconlinetype" name="couponType" value="1">
+		<label for="iconlinetype">IC-S2</label>
+		<input type="checkbox" id="bomonlinetype" name="couponType" value="5">
+		<label for="bomonlinetype">bom+smt</label><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="checkbox" id="icofflinetype" name="couponType" value="6">
+		<label for="icofflinetype">IC-S0</label>
+		<input type="checkbox" id="bomofflinetype" name="couponType" value="7">
+		<label for="bomonlinetype">bom</label><br><br>
+		<label for="couponType">复选框选中汇总：</label>
+		<input type="text" id="myField" name="myField" value="" style="width: 148px;"><br><br>
+		<br><br><br><br><br><br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="coupon" type="submit" value="执行" style="width: 170px;">
+	</form>
+	<form action="/GoodsMeansAdd" method="post" style="padding-left:90px;width: 350px;">
+    <p>DOS资料一键创建</p>
+    <p>
+        <label for="AddGoodsName">创建型号：</label>
+        <input id="AddGoodsName" name="AddGoodsName" type="text" ><br><br>
+		<label for="AddProviderName">创建品牌：</label>
+        <input id="AddProviderName" name="AddProviderName" type="text" ><br><br>
+		<label for="AddCatIds">创建分类：</label>
+        <input id="AddCatIds" name="AddCatIds" type="text" placeholder="指定分类id，非必填"><br><br>
+		<label for="AddPackType">包装类型：</label>
+		<select name="AddPackType" id="AddPackType" style="width: 177px;">
+    			<option value="1">卷装(TR)</option>
+				<option value="2">剪切带(CT)</option>
+				<option value="3">托盘(TRAY)</option>
+				<option value="4">散装(BULK)</option>
+				<option value="5">管装(TUBE)</option>
+				<option value="6">袋装(BAG)</option>
+				<option value="7">盒装(PACKAGE)</option>
+		</select><br><br>
+		<label for="AddPackNumber">包装数量：</label>
+        <input id="AddPackNumber" name="AddPackNumber" type="text" ><br><br>
+		<label for="AddSpecialType">是否为特殊：</label>
+		<select name="AddSpecialType" id="AddSpecialType" style="width: 160px;">
+			<option value="0">否</option>
+			<option value="1">是</option>
+		</select><br><br>
+		<label for="AddSpecialAttrValue">特殊属性值：</label>
+        <input id="AddSpecialAttrValue" name="AddSpecialAttrValue" type="text" style="width: 154px;"><br><br>
+		<br><br>
+
+		<input id="GoodsMeansAdd" type="submit" value="执行" style="width: 170px;margin-top:185px;margin-left: 90px;">
+
+	</p>
+    </form>
+
+	<form action="/jenkinsBuild" method="post" style="padding-left:90px" onsubmit="return validateForm(event)">
+	<p style="text-align:center">Jenkins发布流程</p>
+	<p>
+		<label for="environmentType">执行环境：</label>
+		<select name="environmentType" id="environmentType" style="width: 176px">
+			<option value="fat">FAT</option>
+			<option value="uat">UAT</option>
+		</select><br><br>
+		<label for="BuildProject">执行项目：</label>
+<!--		<input id="BuildProject" name="BuildProject" type="text" ><br><br>-->
+		<input type="text"
+			   id="BuildProject"
+			   name="BuildProject"
+			   list="JenkinsProjectList"
+			   placeholder="请输入Jenkins项目搜索"
+			   autocomplete="off"
+			   onblur="validateProject(this)"
+			   oninput="clearError(this)">
+		<datalist id="JenkinsProjectList">
+				{% for name in JenkinsProjects %}
+					<option value="{{ name }}" data-code="{{ name }}"></option>
+				{% endfor %}
+		</datalist><br>
+		<span id="projectError" style="color: red; font-size: 14px; margin-left: 10px;"></span>
+		<br>
+		<label for="ProjectBranch">项目分支：</label>
+		<input id="ProjectBranch" name="ProjectBranch" type="text"><br><br>
+		<label for="fileInput1">解码文件：</label>
+		<input type="file" id="fileInput1" name="fileInput1" accept=".xls,.xlsx,.csv">
+		<br><br><br><br><br><br><br><br><br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="jenkinsBuild" type="submit" value="执行" style="width: 177px;margin-top:50px">
+	</p>
+	</form>
+	<form action="/sqlReviewTool" method="post" style="padding-left:90px">
+	<p style="text-align:center">SQL平台操作</p>
+	<p>
+		<label for="sqlReviewenvironmentType">执行环境：</label>
+		<select name="sqlReviewenvironmentType" id="sqlReviewenvironmentType" style="width: 232px">
+			<option value="fat">FAT</option>
+			<option value="uat">UAT</option>
+		</select><br><br>
+		<label for="BuildBase">执行数据库：</label>
+		<input id="BuildBase" name="BuildBase" type="text" value="hqchip" style="width: 210px"><br><br>
+		<label for="sqls">SQL语句：</label>
+		<!----- 设置输入框长度200PX,高度50px 且支持换行 -->
+		<textarea id="sqls" name="sqls" style="width: 314px; height: 81px;"></textarea><br><br>
+		<label for="SubmitText">提交说明：</label>
+		<input id="SubmitText" name="SubmitText" type="text" style="width: 229px"><br><br>
+		<label for="WorkId">工单号：</label>
+		<input id="WorkId" name="WorkId" type="text" style="width: 244px">
+		<br><br><br><br><br><br><br><br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="sqlReviewTool" type="submit" value="执行" style="width: 177px;margin-top:50px">
+	</p>
+	</form>
+    </div>
+	<div style="display: flex;" class="after">
+	<form action="/ErpMatchRule" method="post">
+    <p>ERP统一资料匹配规则</p>
+    <p>
+
+        <label for="GoodsMeansGoodsName">匹配型号：</label>
+        <input id="GoodsMeansGoodsName" name="GoodsMeansGoodsName" type="text" style="width: 177px; padding-right: 4px;"><br><br>
+        <label for="GoodsMeansBandName">匹配品牌：</label>
+        <input id="GoodsMeansBandName" name="GoodsMeansBandName" type="text" style="width: 177px;"><br><br>
+		<label for="GoodsMeansEncap">匹配封装：</label>
+        <input id="GoodsMeansEncap" name="GoodsMeansEncap" type="text" style="width: 177px;"><br><br>
+		<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="ErpMatchRule" type="submit" value="执行" style="width: 177px;margin-top:50px">
+	</p>
+    </form>
+	<form action="/opengoodssearch" method="post" style="padding-left: 90px;">
+		<p style="text-align: center"><b>开放接口型号搜索</b></p>
+		<p>
+			<label for="APPKEYReviewenvironmentType">目标环境：</label>
+			<select name="APPKEYReviewenvironmentType" id="APPKEYReviewenvironmentType" style="width: 172px">
+				<option value="UAT">UAT</option>
+				<option value="pro">生产</option>
+			</select><br><br>
+			<label for="APP_KEY">应用KEY：</label>
+			<input id="openapiGoodsAPP_KEY" name="APP_KEY" type="text" value="c11ff533617d2aa45ffd0e1994fb2cd7" style="width: 168px"><br><br>
+			<label for="APP_SEC">应用密钥：</label>
+			<input id="openapiGoodsAPP_SEC" name="APP_SEC" type="text"  style="width: 165px"><br><br>
+			<label for="openapigoodsname">型号名称：</label>
+			<input id="openapiGoodsNameSearch" name="goodsName" type="text" style="width: 165px"><br><br>
+			<label for="openapigoodsId">型号id：&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			<input id="openapiGoodsIdSearch" name="goodsId" type="text" style="width: 170px"><br><br>
+			<label for="openapiGcode">型号G编码：</label>
+			<input id="openapiGcode" name="goodsGcode" type="text" style="width: 155px"><br><br>
+			<label for="openapiGoodsVersionType">接口版本:</label>
+			<select name="goodsVersionType" id="openapiGoodsVersionType" style="width: 65px;">
+    			<option value=1>V1版本</option>
+    			<option value=2>V2版本</option>
+			</select>
+			<label for="openapiRequestCount">请求次数:</label>
+			<input id="openapiRequestCount" name="RequestCount" type="text" style="width: 35px;" value="1"><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="opengoodssearch" type="submit" value="执行" style="width: 177px;">
+		</p>
+	</form>
+	<form action="/timestampConvert" method="post" style="padding-left: 30px;width: 350px;">
+		<p style="text-align: center"><b>时间戳转换工具</b></p>
+		<p>
+<!--			<label>当前时间戳: <span id="timestamp">加载中...</span></label><br><br>-->
+			<label id="timestamp">当前时间戳: </label>
+			<button type="button" id="copyButton">复制时间戳</button>
+			<span class="copy-status" id="copyStatus" style="display:none;color:green;">✓ 已复制</span><br><br>
+			<label for="convertTimestamp">转换时间戳：</label>
+			<input id="convertTimestamp" name="convertTimestamp" type="text" placeholder="请输入具体时间，非必填" ><br><br>
+			<label for="convertTime">转换成时间：</label>
+			<input id="convertTime" name="convertTime" type="text"   placeholder="请输入具体时间戳，非必填"><br><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="timestampConvert" type="submit" value="执行" style="width: 177px;margin-top:110px">
+		</p>
+	</form>
+	<form action="/XLGoodsMeansAdd" method="post" style="padding-left: 30px;width: 350px;">
+    <p style="text-align: center">芯灵资料一键创建</p>
+    <p>
+        <label for="XLAddGoodsName">创建型号：</label>
+        <input id="XLAddGoodsName" name="XLAddGoodsName" type="text" ><br><br>
+		<label for="XLAddProviderName">创建品牌：</label>
+        <input id="XLAddProviderName" name="XLAddProviderName" type="text" ><br><br>
+		<label for="XLAddCatName">创建分类：</label>
+        <input id="XLAddCatName" name="XLAddCatName" type="text" ><br><br>
+		<label for="XLVenodrId">VENODR：</label>
+		<select name="XLVenodrId" id="XLVenodrId" style="width: 177px;">
+    			<option value=75>Panasonic(panasonic)</option>
+				<option value=74>HQ Chip(verified_part_data)</option>
+				<option value=68>HQ Chip(hq_data_importer)</option>
+		</select><br><br>
+		<label for="XLAddAttrPackageValue">创建封装：</label>
+        <input id="XLAddAttrPackageValue" name="XLAddAttrPackageValue" type="text" style="width: 170px;">
+		<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="XLGoodsMeansAdd" type="submit" value="执行" style="width: 170px">
+
+	</p>
+    </form>
+	<form action="/MyZentaoWordHour" method="post" style="padding-left: 30px;width: 350px;">
+    <p style="text-align: center">我的禅道周工时统计</p>
+    <p>
+		<label for="ZentaoWordHourDim">统计维度：</label>
+		<select name="ZentaoWordHourDim" id="ZentaoWordHourDim" style="width: 177px;">
+    	      <option value=1>周统计</option>
+		     <option value=2>月统计</option>
+		</select><br><br>
+        <label for="date">工时日期：</label>
+        <input id="date" name="date" type="text" ><br>
+		<label for="year">工时年份：</label>
+        <input id="year" name="year" type="text" ><br>
+		<label for="month">工时月份：</label>
+        <input id="month" name="month" type="text" ><br>
+		<span id="hint-zentao-work-hour-date" style="color: gray; font-size: 12px;">工时日期为否，工时日期按照本周计算统计</span><br>
+		<label for="cookie">禅道Cookie：</label>
+		<!----- 设置输入框长度200PX,高度50px 且支持换行 -->
+		<textarea id="cookie" name="cookie" style="width: 327px; height: 219px;"></textarea><br><br>
+		<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="MyZentaoWordHour" type="submit" value="执行" style="width: 170px">
+
+	</p>
+    </form>
+<!--	<form action="/2025munich" method="post" style="padding-left:90px">-->
+<!--		<p style="text-align: center"><b>2025慕尼黑活动</b></p>-->
+<!--		<p>-->
+<!--&lt;!&ndash;			<label>当前时间戳: <span id="timestamp">加载中...</span></label><br><br>&ndash;&gt;-->
+<!--			<label for="LotteryChancesStart">抽奖初始：</label>-->
+<!--			<input id="LotteryChancesStart" name="LotteryChancesStart" type="text" placeholder="请输入数字，非必填" ><br><br>-->
+<!--			<label for="LotteryChancesEnd">抽奖截止：</label>-->
+<!--			<input id="LotteryChancesEnd" name="LotteryChancesEnd" type="text"   placeholder="请输入数字，非必填"><br><br>-->
+<!--			<label for="ThreadCount">线程次数：</label>-->
+<!--			<input id="ThreadCount" name="ThreadCount" type="text"   placeholder="请输入数字，非必填" value="1"><br><br>-->
+<!--			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--			<input id="munichActivity" type="submit" value="执行" style="width: 177px;margin-top:110px">-->
+<!--		</p>-->
+<!--	</form>-->
+	</div>
+	</p>
+	<div class="loader"></div>
+<!-- 20250309之前样式功能逻辑带入js方案-->
+<!-- <script>-->
+<!--		document.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {-->
+<!--  			checkbox.addEventListener('change', function() {-->
+<!--    			if (this.checked) {-->
+<!--      				document.getElementById('myField').value += this.value + ',';-->
+<!--    			} else {-->
+<!--      			var values = document.getElementById('myField').value.split(',');-->
+<!--      			values.splice(values.indexOf(this.value), 1);-->
+<!--      			document.getElementById('myField').value = values.join(',');-->
+<!--    			}-->
+<!-- 			 });-->
+<!--		});-->
+<!--	    document.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {-->
+<!--  			checkbox.addEventListener('change', function() {-->
+<!--    			if (this.checked) {-->
+<!--      				document.getElementById('myField1').value += this.value + ',';-->
+<!--    			} else {-->
+<!--      			var values = document.getElementById('myField1').value.split(',');-->
+<!--      			values.splice(values.indexOf(this.value), 1);-->
+<!--      			document.getElementById('myField1').value = values.join(',');-->
+<!--    			}-->
+<!-- 			 });-->
+<!--		});-->
+<!--		document.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {-->
+<!--  			checkbox.addEventListener('change', function() {-->
+<!--    			if (this.checked) {-->
+<!--      				document.getElementById('myField2').value += this.value + ',';-->
+<!--    			} else {-->
+<!--      			var values = document.getElementById('myField2').value.split(',');-->
+<!--      			values.splice(values.indexOf(this.value), 1);-->
+<!--      			document.getElementById('myField2').value = values.join(',');-->
+<!--    			}-->
+<!-- 			 });-->
+<!--		});-->
+<!--		// 获取当前日期-->
+<!--		const today = new Date();-->
+
+<!--		// 将日期格式化为 YYYY-MM-DD（input type="date` 的默认格式）-->
+<!--		const formattedDate = today.toISOString().slice(0, 10);-->
+<!--		// 将当前日期设置为 input 标签的值-->
+<!--	    document.getElementById('TagDay').value = formattedDate;-->
+<!--	    document.getElementById('InventoryTagDay').value = formattedDate;-->
+
+<!--		// 解码工具js-->
+<!--        let imageData;-->
+<!--        document.getElementById('fileInput').addEventListener('change', function(event) {-->
+<!--            const file = event.target.files[0];-->
+<!--            if (file) {-->
+<!--                const reader = new FileReader();-->
+<!--                reader.onload = function(e) {-->
+<!--                    const img = new Image();-->
+<!--                    img.src = e.target.result;-->
+<!--                    img.onload = function() {-->
+<!--                        const canvas = document.createElement('canvas');-->
+<!--                        const ctx = canvas.getContext('2d');-->
+<!--                        canvas.width = img.width;-->
+<!--                        canvas.height = img.height;-->
+<!--                        ctx.drawImage(img, 0, 0, img.width, img.height);-->
+<!--                        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);-->
+<!--                    };-->
+<!--                };-->
+<!--                reader.readAsDataURL(file);-->
+<!--            }-->
+<!--        });-->
+<!--        document.getElementById('decodeButton').addEventListener('click', function() {-->
+<!--            if (imageData) {-->
+<!--                const code = jsQR(imageData.data, imageData.width, imageData.height);-->
+<!--                if (code) {-->
+<!--                	decodedData = code.data;-->
+<!--                    document.getElementById('result').textContent = '解码结果: ' + code.data;-->
+<!--                    document.getElementById('hint').style.display = 'block'; // Show the hint-->
+<!--                    document.getElementById('result').style.userSelect = 'text';-->
+<!--                    document.getElementById('result').style.cursor = 'text';-->
+
+
+<!--                } else {-->
+<!--                    document.getElementById('result').textContent = '解码结果: ' + '解码失败或文件不为二维码文件！！！';-->
+<!--                    document.getElementById('result').style.color = 'red'; // 设置字体颜色为红色-->
+<!--                    decodedData = '';-->
+<!--                }-->
+<!--            } else {-->
+<!--                document.getElementById('result').textContent = '请选择文件！！！';-->
+<!--                document.getElementById('result').style.color = 'red'; // 设置字体颜色为红色-->
+<!--                decodedData = '';-->
+<!--            }-->
+<!--        });-->
+<!--	    document.getElementById('result').addEventListener('click', function() {-->
+<!--			if (decodedData) {-->
+<!--				const textarea = document.createElement('textarea');-->
+<!--				textarea.value = decodedData;-->
+<!--				document.body.appendChild(textarea);-->
+<!--				textarea.select();-->
+<!--				document.execCommand('copy');-->
+<!--				document.body.removeChild(textarea);-->
+<!--				alert('结果复制到剪贴板! 😊😊😊😊😊😊');-->
+<!--			}-->
+
+<!--&lt;!&ndash;          	if (decodedData) {&ndash;&gt;-->
+<!--&lt;!&ndash;				try {&ndash;&gt;-->
+<!--&lt;!&ndash;					await navigator.clipboard.writeText(decodedData);&ndash;&gt;-->
+<!--&lt;!&ndash;					// Show the success message for a short duration&ndash;&gt;-->
+<!--&lt;!&ndash;					const copySuccessElement = document.getElementById('copySuccess');&ndash;&gt;-->
+<!--&lt;!&ndash;					copySuccessElement.style.display = 'block';&ndash;&gt;-->
+<!--&lt;!&ndash;					setTimeout(() => copySuccessElement.style.display = 'none', 2000);&ndash;&gt;-->
+<!--&lt;!&ndash;				} catch (err) {&ndash;&gt;-->
+<!--&lt;!&ndash;					console.error('Failed to copy text: ', err);&ndash;&gt;-->
+<!--&lt;!&ndash;				}&ndash;&gt;-->
+<!--&lt;!&ndash;        	}&ndash;&gt;-->
+<!--        });-->
+<!--        // 对接口获取时间戳-->
+<!--        // 获取时间戳的函数-->
+<!--&lt;!&ndash;		function updateTimestamp() {&ndash;&gt;-->
+<!--&lt;!&ndash;                    fetch('/timestamp_real_time')&ndash;&gt;-->
+<!--&lt;!&ndash;                        .then(response => response.json())&ndash;&gt;-->
+<!--&lt;!&ndash;                        .then(data => {&ndash;&gt;-->
+<!--&lt;!&ndash;                            document.getElementById('timestamp').textContent = data.timestamp;&ndash;&gt;-->
+<!--&lt;!&ndash;                        });&ndash;&gt;-->
+<!--&lt;!&ndash;                }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                // 初始加载时立即更新&ndash;&gt;-->
+<!--&lt;!&ndash;                updateTimestamp();&ndash;&gt;-->
+<!--&lt;!&ndash;                // 每隔500毫秒更新一次&ndash;&gt;-->
+<!--&lt;!&ndash;                setInterval(updateTimestamp, 500);&ndash;&gt;-->
+<!--		// JavaScript代码获取时间戳-->
+<!--		// 等待DOM加载完成-->
+<!--    	document.addEventListener('DOMContentLoaded', () => {-->
+<!--        // 更新时间戳的函数-->
+<!--        function updateTime() {-->
+<!--            const timeDisplay = document.getElementById('timestamp');-->
+<!--            console.log('获取到的元素:', timestamp); // 应为HTMLLabelElement对象-->
+<!--            console.log('生成的时间戳:', Date.now()); // 应输出13位数字-->
+<!--            const currentTimeStamp = Math.floor(Date.now() / 1000); // 获取当前时间戳且将13位毫秒级时间戳转为10位秒级-->
+<!--            timeDisplay.textContent = "当前时间戳: " + currentTimeStamp;-->
+<!--        }-->
+<!--        async function handleCopy(event) {-->
+<!--			event.preventDefault();-->
+<!--			const timestampText = document.getElementById("timestamp").textContent-->
+<!--				.split(": ")[1]  // 更安全的切割方式-->
+<!--				.trim();-->
+<!--			if (!timestampText) {-->
+<!--				alert("时间戳尚未加载！");-->
+<!--				return;-->
+<!--			}-->
+<!--			// 检查 Clipboard API 是否可用-->
+<!--        	if (navigator.clipboard) {-->
+<!--        		try {-->
+<!--					await navigator.clipboard.writeText(timestampText);-->
+<!--					console.log("Clipboard API 成功！");-->
+<!--					showFeedback();-->
+<!--            	} catch (err) {-->
+<!--					console.error("Clipboard API 错误:", err);-->
+<!--					alert("无法使用 Clipboard API，请手动复制。");-->
+<!--            	}-->
+<!--        	}  else {-->
+<!--				// 如果 Clipboard API 不可用，使用传统的复制方法-->
+<!--				const tempInput = document.createElement("input");-->
+<!--				tempInput.value = timestampText;-->
+<!--				tempInput.style.position = 'fixed';  // 防止页面滚动-->
+<!--				document.body.appendChild(tempInput);-->
+<!--				tempInput.select();-->
+<!--				try {-->
+<!--					const successful = document.execCommand("copy");-->
+<!--					if (successful) {-->
+<!--						showFeedback();-->
+<!--					} else {-->
+<!--						alert("复制失败，请手动选择文本复制：" + timestampText);-->
+<!--					}-->
+<!--				} catch (err) {-->
+<!--				     alert("复制失败，请手动选择文本复制：" + timestampText);-->
+<!--            	}-->
+<!--            	document.body.removeChild(tempInput);-->
+<!--            }-->
+<!--		}-->
+<!--        // 显示复制成功的反馈-->
+<!--        function showFeedback() {-->
+<!--            const copyStatus = document.getElementById("copyStatus");-->
+<!--            copyStatus.style.display = "inline";-->
+<!--            setTimeout(() => {-->
+<!--                copyStatus.style.display = "none";-->
+<!--            }, 1500);-->
+<!--        }-->
+<!--        // 初始加载时立即更新-->
+<!--		updateTime();-->
+<!--        // 每秒更新一次-->
+<!--        setInterval(updateTime, 1000);-->
+<!--        // 绑定点击事件-->
+<!--        const copyButton = document.getElementById("copyButton");-->
+<!--        copyButton.addEventListener("click", handleCopy);-->
+
+<!--         });-->
+
+<!--&lt;!&ndash;        // 初始加载时立即更新&ndash;&gt;-->
+<!--&lt;!&ndash;        updateTime();&ndash;&gt;-->
+<!--&lt;!&ndash;        // 每隔500毫秒更新一次&ndash;&gt;-->
+<!--&lt;!&ndash;        setInterval(updateTime, 500);&ndash;&gt;-->
+<!--</script>-->
+
+<!--引入script.js对接   20250310实现-->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

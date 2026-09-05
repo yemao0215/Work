@@ -1,0 +1,65 @@
+HC2016:
+  pwd: '123456'
+  user: admin
+HQCHIP_ERP:
+  audit_account: admin
+  audit_pwd: HQ@uat@666
+  factory_updata: 0
+  pwd: HQ@uat@666
+  user: admin
+HQCHIP_GOODS:
+  goods_id: '1019147090'
+  number: '100'
+  relation_smt_order_sn: ''
+  shipping_method: '1'
+  vat_sub_type: ''
+  vat_type: '1'
+  warehouse_id: '2'
+HQCHIP_SMT:
+  application_sphere: '1'
+  bom_bind_type: '2'
+  bom_material_type_number: '1'
+  bom_sn: ''
+  is_pcb_soft_board: '0'
+  number: '5'
+  pcb_ban_height: '12'
+  pcb_ban_width: '12'
+  pcb_bind_type: '2'
+  pcb_sn: ''
+  pcbaInvoiceNeed: "\u4E0D\u9700\u8981"
+  single_or_double_technique: '1'
+  splicing_number: '1'
+HQCHIP_SOO:
+  admin_name: admin
+  admin_pwd: HQ@uat@666
+  pro_pwd: auth221313
+  pro_user: zhangbajun
+  pwd: '123456789'
+  user: yemao
+HTYSMT:
+  pwd: Hty.920018
+  user: huaqiu
+Hc2018:
+  admin_name: admin
+  admin_pwd: HQ@uat@666
+  pwd: '12345678'
+  user: taoting
+Jenkins:
+  j_password: ''
+  j_username: ''
+PassPort:
+  name: ''
+  phone: '15070739150'
+  pwd: ye123456
+ShangHai_XinLing:
+  admin_token: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmMGMxNzU5NmIzYmM0MDAwYmRkODk5MDY4OGI3YzkzZiIsInVzZXIiOiJhZG1pbiIsInN1YiI6ImFkbWluIn0.Xq7Oo-9hD4lqigZ6zaJvXYKYiYRN-35518SvC5VCDqI-8XML-ML_bdIIluklEFgMyQnYtFMVhAqHFiQ-J7PhnQ
+  bpm_token: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOiJzeXNfdXNlcjoxIiwicm5TdHIiOiJMWk5ROVNaZHdTRVdHYURXZGZHekt6V1FJTGlKRFNSViIsInVzZXJJZCI6MX0.9Q8twZZZr43kuZ0uz6BLtpe28d7QyFc8yVb8CmX8pI4
+  pwd: admin123
+  user: admin
+SqlReview:
+  s_password: ''
+  s_username: ''
+TASK:
+  name: admin
+  pwd: admin
+form: ''

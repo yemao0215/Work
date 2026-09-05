@@ -1,0 +1,73 @@
+APIGcode: G50154356
+APIGoodsName: CESHI260902
+APIGoodsType: '1'
+APIOderRemark: "\u81EA\u52A8\u5316\u6D4B\u8BD5"
+APIPartialOrderAlloweb: '0'
+APIPhone: '15070739150'
+APP_KEY: d14305b64dcbf6410e4a94b468475b8c
+APP_SEC: 4d64ca972ead84ba990ef68b6fb540c6
+Activity_Center_URL: https://uat-activity.hqchip.com
+Approval_URL: https://uat-approval.huaqiu.com
+Assets_Center_url: https://uat-assets.huaqiu.com
+Auth_Base_Pro_URL: https://auth.huaqiu.com
+Auth_Base_URL: https://uat-auth.huaqiu.com
+BOM_MATH_URL: https://uat-bom-math.hqchip.com
+CRM_URL: https://uat-crm.huaqiu.com
+DFM_URL: https://uat-dfm.hqpcb.com/admin
+ELECFANS_URL: https://uat-www.elecfans.com
+ERP_URL: https://uat-e.hqchip.com
+ES_SEARCH_URL: https://uat-es-search.hqchip.com
+GO_SEARCH_URL: https://uat-go-search.hqchip.com
+HC2018_ADMIN_URL: https://uat-hc2019.hqchip.com
+HC2018_ADMIN_URL_odl: https://uat-hc2018.hqchip.com
+HC2018_SUPPLIER_URL: https://uat-supplier-server.hqchip.com
+HQCHIP_ADMIN_URL: https://uat-hc2016.hqchip.com
+HQCHIP_M_ITEM_URL: https://uat-item.m.hqchip.com
+HQCHIP_PC_ITEM_URL: https://uat-item.hqchip.com
+HQCHIP_Task_Center_URL: https://cesi.elecfans.net
+HQCHIP_URL: https://uat-www.hqchip.com
+HQPCB_URL: https://uat-www.hqpcb.com
+HTYSMT_URL: http://debug.htysmt.com
+Jenkins_URL: http://deploy.elecfans.net
+OPENAPI_FAT_URL: http://fat-debugapi.hqchip.com
+OPENAPI_PRO_URL: https://api.hqchip.com
+OPENAPI_UAT_URL: http://debugapi.hqchip.com
+PAY_URL: https://uat-pay.huaqiu.com
+PCBA_MES_NEW_UPLOAD_URL: https://uat-capability.huaqiu.com
+PCBA_MES_NEW_URL: https://uat-pcbames.hqchip.com
+PCBA_MES_OID_URL: https://uat-mes.hqchip.com
+PRODUCT_DETAIL_URL: https://uat-product.hqchip.com
+Partner_URL: https://uat-partner.huaqiu.com
+PassPort_URL: https://uat-passport.huaqiu.com
+RCS_URL: https://uat-rcs.huaqiu.com
+SCM_URL: https://uat-scm.huaqiu.com
+SEARCH_URL: https://uat-search.hqchip.com
+SMT_HQCHIP_URL: https://uat-smt.hqchip.com
+SMT_HQPCB_URL: https://uat-smt.hqpcb.com
+SRM_URL: https://uat-srm.huaqiu.com
+ShangHai_XinLing_BPM_URL: http://47.116.118.182:8080
+ShangHai_XinLing_admin_URL: http://47.100.4.100
+ShangHai_XinLing_reception_URL: http://www.fdatasheets.com
+Sqlreview_URL: http://deploy.elecfans.net
+WMS_FAT_URL: http://wms-api.elecfans.net
+WMS_URL: https://uat-wms.huaqiu.com
+apiEelec_url: https://uat-api.huaqiu.com
+appconfig_id: 7ba476595f694b144f403bb552023d32
+center_java_url: https://uat-customer.huaqiu.com
+center_php_url: https://uat-center.huaqiu.com
+courier_number: SF7444477213792
+help_oneself:
+  kauidi100: https://www.kuaidi100.com
+serialzed_enc_auth_url: https://uat-auth.huaqiu.com/orgauth/getKey
+serialzed_enc_base64_url: https://uat-passport.huaqiu.com/login?formtype=pop
+supplier:
+  element14_appikey: 76tja6quvvqc6qnkhcnpva57
+  element14_url: https://api.element14.com
+  midegaosi: http://crm.connector-world.com/api/inventory/getInventoryData
+  midegaosi_appikey: 64EBECA99B97CACD24007C2E32E1B1A2
+  mouser: https://api.mouser.com
+  mouser_appikey: 76f623be-ee57-4ae3-86b6-01e54048fd18
+  proxy_ip: http://192.168.20.6:3128
+  tme_appikey: 44ddfe58569b87d63d5f
+  tme_token: 232c7e3b37df586fbfb6f3ca23c6c33f00eaea941946f6421e
+  tme_url: https://api.tme.eu

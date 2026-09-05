@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西安5天自驾完整版攻略 | 含里程、车程、游玩耗时</title>
+    <!-- 高德地图JS，替换 YOUR_AMAP_KEY 为你自己申请的web端key -->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=e967f4196a378dd344445e51087102cd"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", system-ui, sans-serif;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: #f4f6f8;
+            color: #2d3748;
+            line-height: 1.85;
+            padding-bottom: 60px;
+        }
+        /* 顶部导航 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            background: #b81c22;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .nav-wrap {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 18px;
+            font-size: 14px;
+            opacity: 0.92;
+        }
+        .nav-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        .header {
+            background: linear-gradient(135deg,#b81c22,#d63031);
+            color: #fff;
+            text-align: center;
+            padding: 42px 20px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 16px rgba(184,28,34,0.22);
+        }
+        .header h1 {
+            font-size: 30px;
+            margin-bottom:12px;
+        }
+        .header p {
+            font-size:16px;
+            opacity:0.9;
+        }
+        /* 地图容器 */
+        #container-map {
+            width:100%;
+            height:460px;
+            border-radius:14px;
+            box-shadow:0 3px 14px rgba(0,0,0,0.1);
+            margin-bottom:32px;
+            overflow:hidden;
+        }
+        .map-tip {
+            font-size:14px;
+            color:#666;
+            margin:-12px 0 24px 4px;
+        }
+        .tips-card {
+            background:#fff2f2;
+            border-left:6px solid #b81c22;
+            padding:18px 22px;
+            border-radius:10px;
+            margin-bottom:30px;
+        }
+        .day-card {
+            background:#ffffff;
+            border-radius:16px;
+            padding:28px;
+            margin-bottom:28px;
+            box-shadow:0 2px 14px rgba(0,0,0,0.07);
+        }
+        .day-title {
+            font-size:22px;
+            color:#b81c22;
+            margin-bottom:16px;
+            padding-bottom:12px;
+            border-bottom:1px solid #eeeeee;
+        }
+        .spot-item {
+            padding:18px 0;
+            border-bottom:1px dashed #e8e8e8;
+        }
+        .spot-item:last-child {
+            border:none;
+        }
+        .spot-name {
+            font-size:18px;
+            font-weight:600;
+            margin-bottom:10px;
+            color:#1a202c;
+        }
+        .spot-info {
+            font-size:15px;
+            color:#4a5568;
+            line-height:2;
+        }
+        .summary {
+            background:#f7f9fc;
+            padding:14px 18px;
+            border-radius:10px;
+            margin-top:18px;
+            font-size:15px;
+        }
+        table {
+            width:100%;
+            border-collapse: collapse;
+            margin:32px 0;
+            background:#fff;
+            border-radius:14px;
+            overflow:hidden;
+            box-shadow:0 2px 12px rgba(0,0,0,0.07);
+        }
+        th,td {
+            padding:15px 10px;
+            text-align:center;
+            border:1px solid #efefef;
+        }
+        th {
+            background:#b81c22;
+            color:#fff;
+            font-weight:500;
+        }
+        tr:nth-child(even) {
+            background:#fafbfc;
+        }
+        .notice-title {
+            font-size:21px;
+            margin:34px 0 16px;
+            color:#1a202c;
+        }
+        .notice-list {
+            background:#fff;
+            border-radius:14px;
+            padding:24px;
+            box-shadow:0 2px 12px rgba(0,0,0,0.07);
+        }
+        .notice-list li {
+            margin:13px 0;
+            padding-left:20px;
+            list-style:none;
+            position:relative;
+        }
+        .notice-list li::before {
+            content:"●";
+            color:#b81c22;
+            position:absolute;
+            left:0;
+        }
+        /*回到顶部*/
+        #back-top{
+            position:fixed;
+            right:24px;
+            bottom:30px;
+            width:44px;
+            height:44px;
+            border-radius:50%;
+            background:#b81c22;
+            color:#fff;
+            text-align:center;
+            line-height:44px;
+            font-size:18px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.2);
+            cursor:pointer;
+            z-index:90;
+        }
+        @media(max-width:768px){
+            .nav-wrap {flex-direction:column;gap:8px;}
+            #container-map {height:340px;}
+            .header h1{font-size:24px;}
+            .day-card{padding:18px;}
+            th,td{padding:10px 4px;font-size:13px;}
+        }
+    </style>
+</head>
+<body>
+    <!--导航栏-->
+    <div class="navbar">
+        <div class="nav-wrap">
+            <div class="nav-title">西安自驾攻略</div>
+            <div class="nav-links">
+                <a href="#map">路线地图</a>
+                <a href="#day1">D1市区</a>
+                <a href="#day2">D2临潼</a>
+                <a href="#day3">D3华山</a>
+                <a href="#day4">D4西线</a>
+                <a href="#day5">D5休整</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>西安5天自驾旅游完整攻略</h1>
+            <p>内置导航路线地图｜里程｜车程｜游玩时长｜顺路不绕路</p>
+        </div>
+
+        <!--地图容器-->
+        <div id="map"></div>
+        <div class="map-tip">💡地图：标记全部景点点位，点击标记查看景点信息；请替换代码中 YOUR_AMAP_KEY 为高德Web端key才可正常加载地图</div>
+
+        <div class="tips-card">
+            <p><strong>住宿建议：</strong>全程入住西安市区（钟楼/小寨附近），无需频繁换酒店，出行便捷。老城区早晚高峰限行，景区优先停正规停车场。</p>
+            <p><strong>出行说明：</strong>东线走连霍高速G30、西线走福银高速G70，节假日临潼、华山高速口易拥堵，建议早7点前出发。</p>
+        </div>
+
+        <div class="day-card" id="day1">
+            <h2 class="day-title">Day1 市区老城人文线｜城墙‑钟鼓楼‑大雁塔‑大唐不夜城</h2>
+            <p style="color:#666;margin-bottom:10px">本日以市区短途行驶+步行为主，无长途高速</p>
+
+            <div class="spot-item">
+                <div class="spot-name">1、西安城墙（永宁门为主入口）</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>市区酒店 → 城墙南门，2‑6km，10‑15分钟<br/>
+                    <strong>游玩耗时：</strong>2‑2.5小时（可骑行游览，体验最佳）
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">2、钟鼓楼 + 回民街（西羊市小吃区）</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>城墙南门 → 钟鼓楼，2.5km，10分钟<br/>
+                    <strong>游玩耗时：</strong>1.5‑2小时，夜景绝美，主打特色小吃打卡
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">3、大雁塔 + 大慈恩寺</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>钟鼓楼 → 大雁塔，6km，18分钟<br/>
+                    <strong>游玩耗时：</strong>1.5‑2小时，打卡西安地标，观赏音乐喷泉
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">4、大唐不夜城（免费夜游）</div>
+                <div class="spot-info">
+                    <strong>路程：</strong>紧邻大雁塔，步行直达<br/>
+                    <strong>游玩耗时：</strong>2‑3小时，灯光璀璨、街头演艺丰富
+                </div>
+            </div>
+
+            <div class="summary">
+                <strong>当日总结：</strong>总行车里程约15km，累计游玩9小时，全程市区住宿，轻松不赶路。
+            </div>
+        </div>
+
+        <div class="day-card" id="day2">
+            <h2 class="day-title">Day2 临潼东线｜兵马俑 + 华清宫（秦唐文化专线）</h2>
+            <p style="color:#666;margin-bottom:10px">全程高速直达，景点顺路不绕路，西安经典必玩线路</p>
+
+            <div class="spot-item">
+                <div class="spot-name">1、秦始皇兵马俑博物馆（世界八大奇迹）</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>西安市区 → 兵马俑，42km，50‑60分钟（连霍高速）<br/>
+                    <strong>游玩耗时：</strong>3‑3.5小时，建议租讲解器，重点参观铜车马展厅
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">2、华清宫 + 骊山风景区</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>兵马俑 → 华清宫，6km，10分钟（秦唐大道直达）<br/>
+                    <strong>游玩耗时：</strong>2.5‑3小时，可登骊山打卡兵谏亭，晚间可观看《长恨歌》实景演出
+                </div>
+            </div>
+
+            <div class="summary">
+                <strong>当日总结：</strong>总行车里程约93km，累计游玩6‑7小时，游玩结束返回西安市区住宿。<br/>
+                <strong>重要提示：</strong>两大景点需提前公众号预约，切勿轻信路边野导。
+            </div>
+        </div>
+
+        <div class="day-card" id="day3">
+            <h2 class="day-title">Day3 华山一日游｜奇险天下第一山</h2>
+            <p style="color:#666;margin-bottom:10px">长途自驾，体力消耗大，建议早起出发，错峰避堵</p>
+
+            <div class="spot-item">
+                <div class="spot-name">华山风景名胜区</div>
+                <div class="spot-info">
+                    <strong>去程车程：</strong>西安市区 → 华山游客中心，120km，2‑2.5小时（连霍高速）<br/>
+                    <strong>建议出发时间：</strong>7:00‑7:30，避开高速早高峰拥堵<br/>
+                    <strong>游玩耗时：</strong>6‑8小时，推荐路线：西峰索道上、北峰索道下，省力全覆盖核心景点
+                </div>
+            </div>
+
+            <div class="summary">
+                <strong>当日总结：</strong>往返行车总里程240km，游玩时长6‑8小时。体力不足可留宿华阴市，次日返程。爬山必备防滑鞋、手套、饮用水及零食。
+            </div>
+        </div>
+
+        <div class="day-card" id="day4">
+            <h2 class="day-title">Day4 西线文化线｜乾陵 + 法门寺</h2>
+            <p style="color:#666;margin-bottom:10px">唐代帝王陵与佛教圣地专线，人文底蕴浓厚</p>
+
+            <div class="spot-item">
+                <div class="spot-name">1、乾陵（武则天&amp;唐高宗合葬陵）</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>西安市区 → 乾陵，80km，1小时（福银高速）<br/>
+                    <strong>游玩耗时：</strong>2小时，打卡无字碑、神道石刻，可顺路游览永泰公主墓
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">2、法门寺文化景区</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>乾陵 → 法门寺，48km，50分钟<br/>
+                    <strong>游玩耗时：</strong>2.5‑3小时，核心观赏地宫珍宝、释迦牟尼舍利塔
+                </div>
+            </div>
+
+            <div class="summary">
+                <strong>当日总结：</strong>总行车里程约238km，累计游玩4.5‑5小时，游玩结束返回西安市区住宿。
+            </div>
+        </div>
+
+        <div class="day-card" id="day5">
+            <h2 class="day-title">Day5 市区休整补打卡｜陕历博 + 永兴坊</h2>
+            <p style="color:#666;margin-bottom:10px">轻松休闲，补齐人文打卡、品尝地道陕味</p>
+
+            <div class="spot-item">
+                <div class="spot-name">1、陕西历史博物馆（免费国家级博物馆）</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>市区酒店 → 陕历博，5‑12km，15‑25分钟<br/>
+                    <strong>游玩耗时：</strong>2.5‑3小时，浓缩陕西千年文物精华，<strong>必须提前预约</strong>
+                </div>
+            </div>
+
+            <div class="spot-item">
+                <div class="spot-name">2、永兴坊美食街区</div>
+                <div class="spot-info">
+                    <strong>车程：</strong>陕历博 → 永兴坊，7km，20分钟<br/>
+                    <strong>游玩耗时：</strong>1‑1.5小时，汇集陕西各地特色小吃，可采购伴手礼
+                </div>
+            </div>
+
+            <div class="summary">
+                <strong>当日总结：</strong>总行车里程约20km，游玩时长4‑4.5小时，行程轻松，适合返程前休整。
+            </div>
+        </div>
+
+        <h3 class="notice-title">西安自驾景点路程/耗时速查表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>目的地景点</th>
+                    <th>距市区里程</th>
+                    <th>参考车程</th>
+                    <th>建议游玩时长</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>西安城墙</td>
+                    <td>3‑7km</td>
+                    <td>10‑15分钟</td>
+                    <td>2‑2.5小时</td>
+                </tr>
+                <tr>
+                    <td>钟鼓楼/回民街</td>
+                    <td>2‑8km</td>
+                    <td>10‑20分钟</td>
+                    <td>1.5‑2小时</td>
+                </tr>
+                <tr>
+                    <td>大雁塔/大唐不夜城</td>
+                    <td>5‑9km</td>
+                    <td>15‑20分钟</td>
+                    <td>3‑4小时</td>
+                </tr>
+                <tr>
+                    <td>秦始皇兵马俑</td>
+                    <td>42km</td>
+                    <td>50‑60分钟</td>
+                    <td>3‑3.5小时</td>
+                </tr>
+                <tr>
+                    <td>华清宫</td>
+                    <td>48km</td>
+                    <td>55‑65分钟</td>
+                    <td>2.5‑3小时</td>
+                </tr>
+                <tr>
+                    <td>华山游客中心</td>
+                    <td>120km</td>
+                    <td>2‑2.5小时</td>
+                    <td>6‑8小时</td>
+                </tr>
+                <tr>
+                    <td>乾陵</td>
+                    <td>80km</td>
+                    <td>1小时</td>
+                    <td>2小时</td>
+                </tr>
+                <tr>
+                    <td>法门寺</td>
+                    <td>125km</td>
+                    <td>1小时40分钟</td>
+                    <td>2.5‑3小时</td>
+                </tr>
+                <tr>
+                    <td>陕西历史博物馆</td>
+                    <td>4‑10km</td>
+                    <td>15‑25分钟</td>
+                    <td>2.5‑3小时</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="notice-title">自驾出行避坑核心提示</h3>
+        <div class="notice-list">
+            <li>西安城墙内老城区高峰限行，自驾尽量停外围正规停车场，优先步行游览老城景点。</li>
+            <li>兵马俑、华山、陕西历史博物馆均需<strong>提前线上预约门票</strong>，节假日建议提前3天预约。</li>
+            <li>华山山顶物价偏高，提前备好饮用水、零食、防滑手套，穿舒适运动鞋。</li>
+            <li>节假日连霍高速临潼、华山出入口极易拥堵，务必早7点前出发错峰出行。</li>
+            <li>新能源车辆可在连霍高速临潼、华山服务区充电，满足长途补电需求。</li>
+            <li>切勿相信景区周边低价导游、低价门票推销，避免踩坑被骗。</li>
+        </div>
+    </div>
+
+    <!--回到顶部按钮-->
+    <div id="back-top" onclick="window.scrollTo({top:0})">↑</div>
+
+    <script>
+        // ==========高德地图点位数据（经纬度）==========
+        const spotList = [
+            {name:"西安城墙(永宁门)",lng:108.9463,lat:34.2622,tip:"游玩：2‑2.5h｜可骑行"},
+            {name:"钟鼓楼",lng:108.9435,lat:34.2657,tip:"游玩：1.5‑2h｜夜景推荐"},
+            {name:"大雁塔‑大慈恩寺",lng:108.9515,lat:34.2187,tip:"游玩：1.5‑2h"},
+            {name:"大唐不夜城",lng:108.9520,lat:34.2160,tip:"游玩：2‑3h｜夜游"},
+            {name:"兵马俑博物馆",lng:109.2795,lat:34.3847,tip:"距市区42km｜游玩3‑3.5h"},
+            {name:"华清宫",lng:109.2198,lat:34.3743,tip:"距市区48km｜游玩2.5‑3h"},
+            {name:"华山游客中心",lng:110.0947,lat:34.4968,tip:"距市区120km｜游玩6‑8h"},
+            {name:"乾陵",lng:108.2283,lat:34.5826,tip:"距市区80km｜游玩2h"},
+            {name:"法门寺",lng:107.9157,lat:34.4472,tip:"距市区125km｜游玩2.5‑3h"},
+            {name:"陕西历史博物馆",lng:108.9488,lat:34.2236,tip:"免费需预约｜游玩2.5‑3h"},
+            {name:"永兴坊",lng:108.9554,lat:34.2740,tip:"美食街区｜游玩1‑1.5h"},
+        ];
+
+        window.onload = function(){
+            //初始化地图，中心点西安
+            const map = new AMap.Map("map",{
+                zoom:8.8,
+                center:[108.9398,34.2708],
+            });
+            //循环添加标记点+信息弹窗
+            spotList.forEach(s=>{
+                const marker = new AMap.Marker({
+                    position:[s.lng,s.lat],
+                    title:s.name,
+                    map:map
+                });
+                const infoWin = new AMap.InfoWindow({
+                    content:`<div style="padding:4px 6px"><strong>${s.name}</strong><br/>${s.tip}</div>`
+                });
+                marker.on("click",()=>{
+                    infoWin.open(map,marker.getPosition());
+                })
+            })
+            map.setFitView();
+        }
+    </script>
+</body>
+</html>

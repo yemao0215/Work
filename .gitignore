@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 测试缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 临时截图
+*screenshot*.png
+*_screenshot.png
+
+# 编译产物/大文件
+*.exe
+*.dll
+
+# 系统文件
+Thumbs.db
+.DS_Store

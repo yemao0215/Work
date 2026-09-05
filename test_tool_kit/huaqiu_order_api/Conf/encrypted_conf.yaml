@@ -1,0 +1,56 @@
+# 白名单：这些 key 不加密
+whiteList:
+  - id
+  - suc
+  - code
+  - msg
+  - type
+  - status
+  - createTime
+
+# 敏感词：匹配到就自动加密
+sensitiveKeys:
+  - phone
+  - mobile
+  - tel
+  - telephone
+  - name
+  - username
+  - realName
+  - nickname
+  - address
+  - receiveAddress
+  - 收货地址
+  - 详细地址
+  - invoice
+  - deliverEmail
+  - titleType
+  - titleName
+  - titleAddress
+  - vatSubType
+  - titleTel
+  - invoiceStatus
+  - titleCompany
+  - titleBank
+  - titleBankSn
+  - titleCode
+  - 发票
+  - 税号
+  - 开户行
+  - 银行卡
+  - idCard
+  - identity
+  - 身份证
+  - email
+  - mail
+  - 邮箱
+  - contract
+  - wechat
+  - qq
+  - 微信
+  - QQ
+  - consignee
+  - consigneeTel
+  - fullAddress
+  - cityId
+  - provinceId

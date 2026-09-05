@@ -1,0 +1,45 @@
+# 热度补货 测试数据
+self:
+    goods_name: nSMD050-33V
+    goods_no: CP0107098
+    goods_id: 2500244174
+# 动销补货 测试数据
+self_moving:
+    goods_name: 0.5K-DX-8PWB
+    goods_no: CO0887787
+    goods_id: 2500234382
+# 补货-LC成交单据 测试数据
+self_lc:
+    goods_name: searchV4.18.3
+    goods_no: MS0000124
+    goods_id: 2500368638
+# 90天成交客户数补货 测试数据
+self_lc_90:
+    goods_name: SZYY0603B
+    goods_no: PH0094626
+    goods_id: 2500344404
+# 新品补货 测试数据
+new:
+    goods_name: AXE520127
+    goods_no: CO0586132
+    goods_id: 9
+# 备货-LC成交单据 测试数据
+new_lc:
+    goods_name: HNTC0603-103F3950FB
+    goods_no: ST0095388
+    goods_id: 1352
+# LC近90天成交单数备货 测试数据
+new_lc_90:
+    goods_name: CESHI260701
+    goods_no: MT0000068
+    goods_id: 1351
+# 安全库存 测试数据
+safety:
+    goods_name: LoationTransform08
+    goods_no: MS0000037
+    goods_id: 2500368591
+# 大数据优选 测试数据
+preferred:
+    goods_name: CESHI20260601-1
+    goods_no: MT0000064
+    goods_id: 2
