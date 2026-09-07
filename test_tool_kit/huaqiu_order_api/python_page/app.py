@@ -15,7 +15,7 @@ from apscheduler.triggers.cron import CronTrigger
 from flask import Flask, render_template, request, render_template_string, jsonify, send_file,abort
 from logzero import json
 
-import pcb_tool
+from huaqiu_order_api.HQPCB.pcb_api import pcb_tool
 from huaqiu_order_api.HC2016_admin.ask.sensitive_words_detection import SensitiveWordsDetection
 from huaqiu_order_api.HC2018_admin.ECCN_add.ECCN_Mouser_sync import EccnMouserSync
 from huaqiu_order_api.HC2018_admin.auto_stock.auto_stock import AutoStock
