@@ -343,6 +343,11 @@ def main():
         log("=" * 60)
         log("全部完成")
         log("=" * 60)
+        # 删除 daily_shots 文件夹
+        import shutil
+        if os.path.exists(SHOT_DIR):
+            shutil.rmtree(SHOT_DIR, ignore_errors=True)
+            log(f"已清理 {SHOT_DIR}")
     except Exception as e:
         log(f"!! 失败: {e}")
         traceback.print_exc()
