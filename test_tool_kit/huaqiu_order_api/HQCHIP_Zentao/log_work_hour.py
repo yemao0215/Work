@@ -15,6 +15,8 @@ from dateutil.tz import tzutc
 class LogWorkHour:
     def __init__(self, rss=None, start_day=None):
         self.rss = requests.Session()
+        if rss is not None:
+            self.rss = rss
         self.json_head = {"Accept": "application/json, text/javascript, */*; q=0.01",
                           "Accept-Language": "zh-CN,zh;q=0.9",
                           "Connection": "keep-alive",
@@ -108,9 +110,10 @@ class LogWorkHour:
             self.start_day = day
         toay_work_hour_lst = []
         toay_work_hour_type = []
-        cookie = self.read_cookie_string(cookie_dir)
         # print(cookie)
-        self.json_head["Cookie"] = cookie
+        if "zentaosid" not in self.rss.cookies:
+            cookie = self.read_cookie_string(cookie_dir)
+            self.json_head["Cookie"] = cookie
         url = "https://p.huaqiu.com/index.php?m=effort&f=ajaxGetEfforts&userID=29&year=2026"
         log_work_hour_res = self.rss.get(url=url, headers=self.json_head).json()
         # print(log_work_hour_res)
@@ -131,6 +134,25 @@ class LogWorkHour:
                         toay_work_hour_type.append(type)
         # print(toay_work_hour_lst, toay_work_hour_type)
         return toay_work_hour_lst, toay_work_hour_type
+
+    def zentao_work_log(self, day=None):
+        if day != None:
+            self.start_day = day
+        toay_work_log_lst = []
+        toay_work_log_type = []
+        if "zentaosid" not in self.rss.cookies:
+            cookie = self.read_cookie_string(cookie_dir)
+            self.json_head["Cookie"] = cookie
+        url = "https://p.huaqiu.com/index.php?m=effort&f=ajaxGetEfforts&userID=29&year=2026"
+        log_work_hour_res = self.rss.get(url=url, headers=self.json_head).json()
+        # print(log_work_hour_res)
+        if isinstance(log_work_hour_res, list):
+            for i in range(len(log_work_hour_res)):
+                if log_work_hour_res[i]["start"] == self.start_day and log_work_hour_res[i]["end"] == self.start_day:
+                    # # 依次剔除指定片段   [T], -测试,amp;
+                    toay_work_log_lst.append(log_work_hour_res[i]["title"] if log_work_hour_res[i]["title"] in ["[T]", "-测试","amp;"] else (log_work_hour_res[i]["title"]).replace("[T]", "").replace("-测试", "").replace("amp;", ""))
+        print(toay_work_log_lst)
+        return toay_work_log_lst
 
     def week_work_hour(self):
         # 获取当前周日期
@@ -202,14 +224,15 @@ class LogWorkHour:
 
 # 使用示例
 if __name__ == "__main__":
-    start_day = "2026-01-13"
+    start_day = "2026-09-08"
     # start_day = None
     month = None
     year = None
     # from huaqiu_order_api.HQCHIP_Zentao.login import ZenTaoLogin
     # iso_time = ZenTaoLogin().get_current_iso_utc()
     # print(f"当前UTC时间: {iso_time}")
-    # rss = ZenTaoLogin().login()
-    LogWorkHour(start_day=start_day).month_dates_create()
-    LogWorkHour(start_day=start_day).week_work_hour()
+    rss = ZenTaoLogin().login()
+    # LogWorkHour(rss=rss,start_day=start_day).month_dates_create()
+    LogWorkHour(rss=rss,start_day=start_day).week_work_hour()
+    LogWorkHour(rss=rss,start_day=start_day).zentao_work_log()
     # LogWorkHour(start_day=start_day).month_work_hour(month=month, year=year)

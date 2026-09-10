@@ -121,7 +121,10 @@ subject_more_Aspect1_button_dir = os.path.join(root_dir, r"专题图片/看点�
 subject_order_now_dir = os.path.join(root_dir, r"专题图片/立即下单logo/样式一.png")
 subject_form_submit_dir = os.path.join(root_dir, r"专题图片/表单组件图片/提交报名按钮.png")
 subject_banner_dir = os.path.join(root_dir, r"专题图片/通栏图片")
-subject_more_banner_txts = [os.path.join(subject_banner_dir, file) for file in os.listdir(subject_banner_dir)]
+if os.path.exists(subject_banner_dir):
+    subject_more_banner_txts = [os.path.join(subject_banner_dir, file) for file in os.listdir(subject_banner_dir)]
+else:
+    subject_more_banner_txts = []
 subject_NavBar_main_icon_dir = os.path.join(root_dir, r"专题图片/导航菜单(一)图片/主LOGO.png")
 subject_NavBar_button_enroll_icon_dir = os.path.join(root_dir, r"专题图片/导航菜单(一)图片/大会报名按钮.png")
 subject_NavBar_button_review_icon_dir = os.path.join(root_dir, r"专题图片/导航菜单(一)图片/大会回顾按钮.png")

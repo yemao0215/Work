@@ -5,7 +5,7 @@ import time
 import json
 import hashlib
 import requests
-import review_order
+from . import review_order
 
 from huaqiu_order_api.common.loguru_logger import logger
 from huaqiu_order_api.common.my_data import Data

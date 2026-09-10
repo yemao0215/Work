@@ -2,7 +2,7 @@ import requests
 import re
 import yaml
 import json
-import pcb_tool
+from . import pcb_tool
 from huaqiu_order_api.common.loguru_logger import logger
 from huaqiu_order_api.common.my_path import pcb_config_yaml_dir
 

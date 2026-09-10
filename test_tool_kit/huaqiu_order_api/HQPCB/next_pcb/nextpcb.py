@@ -3,7 +3,7 @@ import re
 import time
 import yaml
 import requests
-import review_order
+from huaqiu_order_api.HQPCB.pcb_api import review_order
 from huaqiu_order_api.common.my_path import pcb_config_yaml_dir
 
 
