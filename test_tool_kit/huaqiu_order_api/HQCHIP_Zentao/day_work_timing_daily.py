@@ -348,6 +348,14 @@ def main():
         if os.path.exists(SHOT_DIR):
             shutil.rmtree(SHOT_DIR, ignore_errors=True)
             log(f"已清理 {SHOT_DIR}")
+        # 完成后锁屏（仅18:40后执行）
+        now_hm = datetime.datetime.now().strftime("%H:%M")
+        if now_hm > "18:40":
+            import ctypes
+            ctypes.windll.user32.LockWorkStation()
+            log("已锁屏")
+        else:
+            log(f"当前时间{now_hm}，未到18:40，不锁屏")
     except Exception as e:
         log(f"!! 失败: {e}")
         traceback.print_exc()

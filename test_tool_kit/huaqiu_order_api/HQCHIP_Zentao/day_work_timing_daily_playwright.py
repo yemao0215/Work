@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
 """
-day_work_timing_daily_zentaoAPI.py
-==================================
-自动完成「禅道日志 -> 钉钉研发日报」的每日填报（API 模式）：
+day_work_timing_daily_playwright.py
+====================================
+自动完成「禅道日志 -> 钉钉研发日报」的每日填报（Playwright 版）：
 
-  1. ZenTaoLogin().login() 获取登录 Session
-  2. LogWorkHour(rss, day).zentao_work_log(day) 获取当天所有日志标题
-  3. 钉钉桌面端后台打开研发日报，填入日志、次日计划、可见性、定时发送 21:00
-  4. 保存并关闭
+  1. Playwright 启动 Chromium 打开禅道，未登录则自动登录，抓取今日日志
+  2. 钉钉桌面端打开研发日报，填入日志、次日计划、可见性、定时发送 21:00
+  3. 保存并关闭
 
-运行：python day_work_timing_daily_zentaoAPI.py
+运行：python day_work_timing_daily_playwright.py
 """
 
 import datetime
 import os
+import re
 import sys
 import time
 import traceback
-
-from huaqiu_order_api.HQCHIP_Zentao.login import ZenTaoLogin
-from huaqiu_order_api.HQCHIP_Zentao.log_work_hour import LogWorkHour
 
 
 # ============================================================
 # 配置
 # ============================================================
-DINGTALK_MAIN_HWND = 197698
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ZENTAO_URL = "https://p.huaqiu.com"
+ACCOUNT = "yemao"
+PASSWORD = "Ye123456789+"
+
 SEND_HOUR = 21
 SEND_MINUTE = 0
 NEXT_DAY_PLAN = "测试工作日常安排与跟进处理"
 
-SHOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "daily_shots")
+SHOT_DIR = os.path.join(BASE_DIR, "daily_shots")
 
 
 def log(msg: str) -> None:
@@ -46,60 +47,114 @@ def _set_clipboard(text: str):
 
 
 # ============================================================
-# 禅道：API 获取今日日志
+# 禅道：Playwright UI 自动化
 # ============================================================
-def fetch_today_logs():
-    """通过 API 获取今日禅道日志标题列表。"""
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    log(f"登录禅道 API ...")
-    rss = ZenTaoLogin().login()
-    log(f"获取 {today} 的日志 ...")
-    logs = LogWorkHour(rss=rss, start_day=today).zentao_work_log()
-    # 清洗空项
-    logs = [t.strip() for t in logs if t and t.strip()]
-    log(f"今日日志 {len(logs)} 条：")
-    for i, t in enumerate(logs, 1):
-        log(f"  {i}. {t}")
-    if not logs:
-        raise RuntimeError("API 未返回今日日志")
-    return logs
+def fetch_today_logs_via_quark():
+    """用 Playwright 打开禅道，登录，抓取今日日志。"""
+    from playwright.sync_api import sync_playwright
+
+    log("启动 Playwright Chromium ...")
+    pw = sync_playwright().start()
+    # 用 Playwright 自带 Chromium，后台窗口
+    browser = pw.chromium.launch(
+        headless=False,
+        args=[
+            "--window-position=-3000,0",
+            "--window-size=1400,900",
+            "--disable-blink-features=AutomationControlled",
+        ],
+    )
+    context = browser.new_context(viewport=None)
+    page = context.new_page()
+
+    try:
+        page.goto(ZENTAO_URL, wait_until="domcontentloaded")
+        time.sleep(5)
+        log(f"当前URL: {page.url}, title: {page.title()}")
+
+        # 判断是否已登录
+        if "user-login" in page.url or "登录" in page.title():
+            log("未登录，走钉钉登录跳转 ...")
+            # 点"钉钉登录"按钮
+            btns = page.query_selector_all("button")
+            for b in btns:
+                txt = b.inner_text() or ""
+                if "钉钉" in txt:
+                    b.click()
+                    break
+            time.sleep(6)
+            log(f"跳转后URL: {page.url}")
+
+            # 统一登录页点"账号密码登录"
+            try:
+                page.get_by_text("账号密码登录", exact=False).first.click(timeout=5000)
+                time.sleep(2)
+            except Exception:
+                log("未找到账号密码登录Tab，直接填")
+
+            # 填账号密码
+            inputs = page.query_selector_all("input")
+            for inp in inputs:
+                t = (inp.get_attribute("type") or "text").lower()
+                if t == "password":
+                    inp.fill(PASSWORD)
+                elif t in ("text", ""):
+                    ph = inp.get_attribute("placeholder") or ""
+                    if "账号" in ph or "用户" in ph or "手机" in ph:
+                        inp.fill(ACCOUNT)
+            time.sleep(0.5)
+            # 点登录按钮
+            btns = page.query_selector_all("button")
+            for b in btns:
+                txt = b.inner_text() or ""
+                if "登录" in txt and "钉钉" not in txt:
+                    b.click()
+                    break
+            time.sleep(10)
+            log(f"登录后URL: {page.url}")
+
+        # 进日志日历页
+        log("打开日志日历 ...")
+        page.goto(ZENTAO_URL + "/index.php?m=effort&f=calendar", wait_until="domcontentloaded")
+        time.sleep(6)
+        os.makedirs(SHOT_DIR, exist_ok=True)
+        page.screenshot(path=os.path.join(SHOT_DIR, "02_calendar.png"))
+
+        # 取cookie调API获取日志
+        log("取cookie调API获取日志 ...")
+        import requests
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        cookies = {c["name"]: c["value"] for c in context.cookies()}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "X-Requested-With": "XMLHttpRequest",
+        }
+        api_url = "https://p.huaqiu.com/index.php?m=effort&f=ajaxGetEfforts&userID=29&year=2026"
+        resp = requests.get(api_url, cookies=cookies, headers=headers).json()
+        logs = []
+        if isinstance(resp, list):
+            for item in resp:
+                if item.get("start") == today and item.get("end") == today:
+                    title = item.get("title", "")
+                    title = title.replace("[T]", "").replace("-测试", "").replace("amp;", "").strip()
+                    if title and title not in logs:
+                        logs.append(title)
+        log(f"今日日志 {len(logs)} 条：")
+        for i, t in enumerate(logs, 1):
+            log(f"  {i}. {t}")
+        if not logs:
+            raise RuntimeError("未抓到今日日志")
+        return logs
+
+    finally:
+        context.close()
+        browser.close()
+        pw.stop()
 
 
 # ============================================================
-# 钉钉桌面端（静默后台操作）
+# 钉钉桌面端
 # ============================================================
-def _move_window_offscreen(hwnd: int):
-    """把窗口移到屏幕外，用户看不到、鼠标不被抢。"""
-    import win32gui
-    import win32con
-    # 记录原位置以便结束后恢复
-    rect = win32gui.GetWindowRect(hwnd)
-    # 主屏幕外（左上角为负坐标）
-    win32gui.SetWindowPos(hwnd, win32con.HWND_BOTTOM, -3000, -100, rect[2]-rect[0], rect[3]-rect[1],
-                          win32con.SWP_NOACTIVATE | win32con.SWP_SHOWWINDOW)
-    time.sleep(0.5)
-    return rect
-
-
-def _send_click_to_window(hwnd: int, x: int, y: int):
-    """向后台窗口发送 WM_LBUTTONDOWN/UP（不动物理鼠标）。
-    x,y 是相对于窗口客户区的坐标。"""
-    import win32api
-    import win32con
-    lparam = win32api.MAKELONG(x, y)
-    win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
-    time.sleep(0.05)
-    win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lparam)
-
-
-def _set_clipboard(text: str):
-    import win32clipboard
-    win32clipboard.OpenClipboard()
-    win32clipboard.EmptyClipboard()
-    win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, text)
-    win32clipboard.CloseClipboard()
-
-
 def find_dingtalk_hwnd():
     """动态查找钉钉主窗口句柄。"""
     import win32gui
@@ -129,7 +184,6 @@ def fill_dingtalk_desktop(logs: list[str]):
     d = Desktop(backend="uia")
     main = d.window(handle=hwnd)
 
-    # 保存鼠标位置，操作完恢复
     orig_mouse = pyautogui.position()
     try:
         # 0) 激活钉钉窗口
@@ -164,7 +218,7 @@ def fill_dingtalk_desktop(logs: list[str]):
             raise RuntimeError("找不到研发日报")
         time.sleep(5)
 
-        # 3) 处理草稿对话框（如果弹出来）
+        # 3) 处理草稿对话框
         cef = main.child_window(class_name="CefBrowserWindow")
         for el in main.descendants(control_type="Button"):
             try:
@@ -178,7 +232,7 @@ def fill_dingtalk_desktop(logs: list[str]):
 
         cef = main.child_window(class_name="CefBrowserWindow")
 
-        # 4) 填今日工作内容（找第一个"请输入"）
+        # 4) 填今日工作内容
         log("填今日工作内容 ...")
         content = "\n".join(f"{i}. {t}" for i, t in enumerate(logs, 1))
         placeholders = []
@@ -199,7 +253,7 @@ def fill_dingtalk_desktop(logs: list[str]):
         pyautogui.hotkey("ctrl", "v")
         time.sleep(1)
 
-        # 5) 填次日计划（找第二个"请输入"）
+        # 5) 填次日计划
         log("填次日计划 ...")
         if len(placeholders) >= 2:
             r = placeholders[1].rectangle()
@@ -211,13 +265,13 @@ def fill_dingtalk_desktop(logs: list[str]):
         pyautogui.hotkey("ctrl", "v")
         time.sleep(0.5)
 
-        # 6) 滚动到底部（拖右侧滚动条）
+        # 6) 滚动到底部
         log("滚动到底部 ...")
         pyautogui.moveTo(1880, 300)
         pyautogui.dragTo(1880, 950, duration=1)
         time.sleep(2)
 
-        # 7) 勾选 CheckBox（用 UIA toggle，rect全0但有效）
+        # 7) 勾选 CheckBox
         log("勾选仅接收人可见和定时发送 ...")
         for el in cef.descendants(control_type="CheckBox"):
             try:
@@ -239,8 +293,7 @@ def fill_dingtalk_desktop(logs: list[str]):
         log(f"设置时间 {time_text}")
         for el in cef.descendants(control_type="Edit"):
             try:
-                n = el.element_info.name or ""
-                if n == "选择发送时间":
+                if el.element_info.name == "选择发送时间":
                     el.click_input()
                     time.sleep(0.5)
                     break
@@ -266,20 +319,18 @@ def fill_dingtalk_desktop(logs: list[str]):
             except Exception:
                 continue
 
-        # 10) 关闭日报页面（Ctrl+W关闭标签页）
+        # 10) 关闭日报页面
         log("关闭日报页面 ...")
         time.sleep(1)
         pyautogui.hotkey("ctrl", "w")
         time.sleep(2)
 
-        # 截图确认
         os.makedirs(SHOT_DIR, exist_ok=True)
         shot_path = os.path.join(SHOT_DIR, f"{int(time.time())}_after_save.png")
         pyautogui.screenshot().save(shot_path)
         log(f"截图 -> {shot_path}")
 
     finally:
-        # 恢复鼠标位置
         pyautogui.moveTo(orig_mouse.x, orig_mouse.y)
 
 
@@ -288,10 +339,10 @@ def fill_dingtalk_desktop(logs: list[str]):
 # ============================================================
 def main():
     log("=" * 60)
-    log("禅道API -> 钉钉研发日报 开始")
+    log("禅道(Playwright) -> 钉钉研发日报 开始")
     log("=" * 60)
     try:
-        logs = fetch_today_logs()
+        logs = fetch_today_logs_via_quark()
         fill_dingtalk_desktop(logs)
         log("=" * 60)
         log("全部完成")
